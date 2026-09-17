@@ -27,6 +27,7 @@ html { background: var(--paper); }
 body { margin: 0; min-width: 320px; background: var(--paper); color: var(--ink); font-family: var(--font-body); }
 button, input { font: inherit; }
 button, a, input { -webkit-tap-highlight-color: transparent; }
+button { border-radius: 8px; }
 button:not(:disabled), a, input[type="range"] { cursor: pointer; }
 button:disabled { cursor: not-allowed; opacity: 0.4; }
 button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid var(--rosewood-blush); outline-offset: 3px; }
@@ -96,7 +97,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .input-with-icon svg { position: absolute; left: 10px; color: #eba3b3; }
 .input-with-icon input { padding-left: 33px; }
 .compact-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.add-link-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: max-content; padding: 10px 13px; color: #4a2630; background: #eeb4c0; border: 0; border-radius: 0; font-size: 11px; font-weight: 800; transition: transform .16s cubic-bezier(.23,1,.32,1), background .16s; }
+.add-link-button { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: max-content; padding: 10px 13px; color: #4a2630; background: #eeb4c0; border: 0; font-size: 11px; font-weight: 800; transition: transform .16s cubic-bezier(.23,1,.32,1), background .16s; }
 .add-link-button:hover { background: #f5c5ce; }
 .upload-zone--busy { pointer-events: none; opacity: .72; }
 .add-link-button:active, .icon-button:active, .play-button:active, .remove-button:active { transform: scale(.97); }
@@ -248,7 +249,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .album-page-track-button:hover { color: var(--rose-deep); background: rgba(180,93,112,.09); }
 .album-page-track-number { grid-row: 1 / span 2; padding-top: 2px; color: var(--rosewood-blush); font: 9px var(--font-metadata); }
 .album-page-track-title { display: block; min-width: 0; }
-.album-page-track-title strong { min-width: 0; overflow: hidden; font-family: var(--font-body); font-size: 13px; text-overflow: ellipsis; white-space: nowrap; }
+.album-page-track-title strong { min-width: 0; overflow: hidden; font-family: var(--font-body); font-size: 28px; text-overflow: ellipsis; white-space: nowrap; }
 .album-page-track-button small { overflow: hidden; color: var(--muted-ink); font: 9px var(--font-metadata); letter-spacing: .02em; text-overflow: ellipsis; white-space: nowrap; }
 .album-page-track-button time { grid-column: 3; grid-row: 1 / span 2; align-self: center; color: var(--muted-ink); font: 9px var(--font-metadata); }
 .album-page-track-button--active { box-shadow: inset 2px 0 0 rgba(180,93,112,.42); }
@@ -284,7 +285,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 @keyframes selected-title-marquee { from { transform: translateX(0); } to { transform: translateX(calc(-1 * var(--title-scroll-distance))); } }
 @media (prefers-reduced-motion: reduce) { .track-details h3.track-title--marquee { overflow-x: auto; scrollbar-width: thin; scrollbar-color: var(--rosewood-blush) transparent; } }
 .track-details--empty h3 { margin-top: 9px; color: var(--rose-deep); font-size: clamp(22px, 2.4vw, 31px); letter-spacing: -.035em; }
-.artist-line { margin: 13px 0 0; color: var(--muted-ink); font-family: var(--font-metadata); font-size: 14px; line-height: 1.5; }
+.artist-line { margin: 13px 0 0; color: var(--muted-ink); font-family: var(--font-body); font-size: 14px; line-height: 1.5; }
 .album-credit { margin: 5px 0 0; color: var(--rosewood-blush); font: 10px var(--font-metadata); letter-spacing: .08em; text-transform: uppercase; }
 .playback-error { margin: 13px 0 0; padding-left: 11px; color: #8d3241; border-left: 2px solid #b45d70; font-size: 11px; line-height: 1.5; }
 .source-link { display: inline-flex; align-items: center; gap: 7px; margin-top: 16px; color: var(--rose-deep); font: 11px var(--font-metadata); text-underline-offset: 4px; }
