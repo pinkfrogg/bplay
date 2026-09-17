@@ -215,7 +215,7 @@ export default function AlbumPage() {
       <img className="stage-atmosphere" src={HERO_ART} alt="" />
       <header className="album-page-header">
         <div className="album-page-header-main">
-          <Link className="album-back-link" href="/">← Back to movie albums</Link>
+          <Link className="album-back-link" href="/">← Back to discography</Link>
           <div className="album-page-heading">
             <span className="album-page-sleeve"><img src={cover} alt={`${albumTitle} DVD sleeve`} /><i>DVD / SOUNDTRACK</i></span>
             <div><p className="eyebrow">Movie soundtrack</p><h1>{albumTitle}</h1><p>{album ? `${album.releaseYear ?? "—"} • ${album.tracks.length} TRACKS` : catalogQuery.isLoading ? "Opening the album…" : "This sleeve is unavailable."}</p></div>
@@ -224,7 +224,7 @@ export default function AlbumPage() {
         <div className="stage-tools"><button className="theme-toggle" type="button" aria-label="Toggle evening dusk theme" onClick={toggleTheme}>{theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}{theme === "dark" ? "Daylight" : "Evening dusk"}</button></div>
       </header>
       <div className="rail-search-reserve" style={{ height: searchReserveHeight }} aria-hidden="true" />
-      {catalogQuery.isLoading ? <section className="album-page-empty"><strong>Opening the soundtrack…</strong><span>The curated tracks are being arranged.</span></section> : !album ? <section className="album-page-empty"><strong>This movie sleeve is unavailable.</strong><Link href="/">Return to Movie Albums</Link></section> : <>
+      {catalogQuery.isLoading ? <section className="album-page-empty"><strong>Opening the soundtrack…</strong><span>The curated tracks are being arranged.</span></section> : !album ? <section className="album-page-empty"><strong>This movie sleeve is unavailable.</strong><Link href="/">Return to Discography</Link></section> : <>
         <section className="album-page-tracklist" aria-labelledby="album-tracklist-heading">
           <div className="album-page-section-heading"><PrincessCrown /><h2 id="album-tracklist-heading">Tracks</h2></div>
           <ol className="album-page-tracks">{tracks.map((song, itemIndex) => {

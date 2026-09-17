@@ -1,6 +1,6 @@
 # GitHub → Vercel Connection and Secret Protection Walkthrough
 
-**Prepared for:** Melodies in the Dreamhouse  
+**Prepared for:** Studio Pavilion
 **Scope:** Private GitHub repository, Vercel project connection, server-only admin credentials, and GitHub secret protection.
 
 ## Important deployment boundary

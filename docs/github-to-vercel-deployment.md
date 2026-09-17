@@ -1,4 +1,4 @@
-# Deploying Melodies in the Dreamhouse from GitHub to Vercel
+# Deploying Studio Pavilion from GitHub to Vercel
 
 ## Important compatibility note
 
