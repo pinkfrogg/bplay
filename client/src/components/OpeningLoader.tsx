@@ -72,8 +72,8 @@ export default function OpeningLoader() {
 
   if (!visible) return null;
 
-  return <div className="opening-loader" data-phase={phase} role="status" aria-label="Opening Melodies in the Dreamhouse">
-    <span className="sr-only">Opening Melodies in the Dreamhouse</span>
+  return <div className="opening-loader" data-phase={phase} role="status" aria-label="Opening Studio Pavilion">
+    <span className="sr-only">Opening Studio Pavilion</span>
     <div className="opening-loader-glow" aria-hidden="true" />
     <div className="opening-loader-fragments" aria-hidden="true">
       <span className="loader-fragment loader-note loader-note--one">♪</span>

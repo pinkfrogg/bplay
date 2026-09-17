@@ -155,13 +155,13 @@
 - [x] Redraw the heading crown with a rounded three-point tattoo silhouette matching the updated reference.
 - [x] Verify the revised crown at both Albums heading placements and save an updated checkpoint.
 - [x] Replace the website favicon with the rounded dusty-pink crown mark.
-- [x] Rename the shared listening-room header to Melodies in the Dreamhouse, remove Curated player, and add Barbara's Playlist beneath it.
+- [x] Rename the shared listening-room header to Studio Pavilion, remove Curated player, and add Barbara's Playlist beneath it.
 - [x] Validate the new favicon and responsive brand header, then save an updated checkpoint.
 - [x] Add a subtle dusty-pink hover glow to the header crown icon.
-- [x] Display Melodies in the Dreamhouse as one horizontal header title without line breaks.
+- [x] Display Studio Pavilion as one horizontal header title without line breaks.
 - [x] Validate the responsive branded header and save an updated checkpoint.
 - [x] Replace DM Serif Display with Tagesschrift for display and title typography.
-- [x] Set the Melodies in the Dreamhouse brand title to 46px while retaining Manrope and DM Mono elsewhere.
+- [x] Set the Studio Pavilion brand title to 46px while retaining Manrope and DM Mono elsewhere.
 - [x] Validate the new typography at desktop and mobile sizes and save an updated checkpoint.
 - [x] Add a permanent soft pink pulsing glow to the header crown and scale it to the main title height.
 - [x] Set Barbara's Playlist to 22px in the shared header.
@@ -191,7 +191,7 @@
 - [x] Darken the album-page tonearm and cartridge for clearer contrast against the vinyl and sleeve.
 - [x] Slightly lengthen the tonearm and cartridge while preserving their established playback alignment.
 - [x] Validate the typography and responsive turntable treatment, then save an updated checkpoint.
-- [x] Set the desktop Melodies in the Dreamhouse wordmark to 46px while retaining the 16px subtitle.
+- [x] Set the desktop Studio Pavilion wordmark to 46px while retaining the 16px subtitle.
 - [x] Validate the responsive 46px wordmark treatment and save an updated checkpoint.
 - [x] Animate each movie-sleeve record from a partially tucked resting position to a fully revealed hover or focus position.
 - [x] Return inactive sleeve records smoothly and preserve accessible keyboard-focus behavior and reduced-motion support.
