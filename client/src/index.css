@@ -60,7 +60,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 @media (prefers-reduced-motion: no-preference) { .brand-crown { animation: crown-soft-pulse 2.8s ease-in-out infinite; } }
 @keyframes crown-soft-pulse { 0%, 100% { color: #e9a5b4; filter: drop-shadow(0 2px 6px rgba(0,0,0,.15)) drop-shadow(0 0 2px rgba(235,153,173,.16)); transform: scale(1); } 50% { color: #f4b8c4; filter: drop-shadow(0 2px 8px rgba(0,0,0,.14)) drop-shadow(0 0 12px rgba(235,153,173,.64)); transform: scale(1.035); } }
 .eyebrow { margin: 0; color: currentColor; font-family: var(--font-metadata); font-size: 10px; font-weight: 500; letter-spacing: .13em; line-height: 1.4; text-transform: uppercase; opacity: .74; }
-.wordmark { position: relative; display: inline-block; margin: 0; color: inherit; font-family: var(--font-display); font-weight: 700; font-size: 46px; line-height: .94; letter-spacing: -.13em; text-decoration: none; white-space: nowrap; }
+.wordmark { position: relative; display: inline-block; margin: 0; color: inherit; font-family: var(--font-display); font-weight: bold; font-size: 46px; line-height: .94; letter-spacing: -.13em; text-decoration: none; white-space: nowrap; }
 .wordmark { isolation: isolate; transition: color .42s ease, text-shadow .48s ease, filter .48s ease; }
 .wordmark-link { cursor: pointer; }
 .wordmark::before, .wordmark::after { position: absolute; z-index: -1; color: #ffd5de; content: "✦"; opacity: 0; pointer-events: none; text-shadow: 0 0 10px rgba(255,203,216,.76); transition: opacity .5s ease, transform .56s cubic-bezier(.23,1,.32,1), filter .5s ease; }
@@ -276,7 +276,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .vinyl--spinning { animation: vinyl-spin 4.8s linear infinite; }
 @keyframes vinyl-spin { to { transform: rotate(360deg); } }
 .track-details { min-width: 0; max-width: none; padding-top: 0; }
-.track-details h3 { margin: 0; overflow: hidden; font-family: var(--font-display); font-weight: 700; font-size: clamp(30px, 2.6vw, 54px); letter-spacing: -.02em; line-height: .96; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.track-details h3 { margin: 0; overflow: hidden; font-family: var(--font-display); font-weight: bold; font-size: clamp(30px, 2.6vw, 54px); letter-spacing: -.02em; line-height: .96; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .track-details h3 > span { display: inline-block; white-space: nowrap; }
 .track-title-marquee-track { display: flex !important; align-items: baseline; width: max-content; gap: 54px; }
 .track-title-marquee-track > span { display: block; flex: 0 0 auto; }
