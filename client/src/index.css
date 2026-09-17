@@ -11,15 +11,15 @@
   --paper: #f5eee7;
   --paper-dark: #e7d8cf;
   --line: rgba(77, 44, 41, 0.19);
-  --serif: "Chelsea Market", "Trebuchet MS", cursive;
+  --serif: "Cal Sans", sans-serif;
   --sans: "Readex Pro", Arial, sans-serif;
-  --mono: "DM Mono", monospace;
+  --mono: "Marcellus", serif;
   --font-display: "Tangerine", cursive;
   --font-subdisplay: "Cal Sans", sans-serif;
   --font-body: "Cal Sans", sans-serif;
   --font-metadata: "Marcellus", serif;
   --font-lyric-sans: "Readex Pro", Arial, sans-serif;
-  --font-lyric-serif: "Chelsea Market", "Trebuchet MS", cursive;
+  --font-lyric-serif: "Cal Sans", sans-serif;
 }
 
 * { box-sizing: border-box; }
