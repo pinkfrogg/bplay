@@ -3,6 +3,9 @@ import { httpBatchLink } from "@trpc/client";
 import { createRoot } from "react-dom/client";
 import superjson from "superjson";
 import App from "./App";
+import "@fontsource/tangerine/700.css";
+import "@fontsource/marcellus/400.css";
+import "cal-sans/index.css";
 import "./index.css";
 import { trpc } from "./lib/trpc";
 
