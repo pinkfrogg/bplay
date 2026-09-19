@@ -228,7 +228,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .album-page-header, .album-page-tracklist, .album-page-empty { position: relative; z-index: 1; }
 .album-page-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 24px; margin-bottom: 22px; }
 .album-page-header-main { min-width: 0; }
-.album-back-link { display: inline-flex; align-items: center; min-height: 32px; margin-bottom: 18px; padding: 0 12px; color: #fff6f1; background: linear-gradient(135deg, #d98a9d, var(--rosewood-blush) 64%, var(--rose-deep)); border: 1px solid #8e4051; box-shadow: 0 2px 0 #6b2d3b, 0 5px 11px rgba(180,93,112,.2), inset 0 1px 1px rgba(255,255,255,.44); font: 9px var(--font-metadata); letter-spacing: .075em; text-decoration: none; text-transform: uppercase; transition: transform .16s cubic-bezier(.23,1,.32,1), background .16s; }
+.album-back-link { display: inline-flex; align-items: center; min-height: 32px; margin-bottom: 18px; padding: 0 12px; color: #fff6f1; background: linear-gradient(135deg, #d98a9d, var(--rosewood-blush) 64%, var(--rose-deep)); border: 1px solid #8e4051; border-radius: 8px; box-shadow: 0 2px 0 #6b2d3b, 0 5px 11px rgba(180,93,112,.2), inset 0 1px 1px rgba(255,255,255,.44); font: 9px var(--font-metadata); letter-spacing: .075em; text-decoration: none; text-transform: uppercase; transition: transform .16s cubic-bezier(.23,1,.32,1), background .16s; }
 .album-back-link:hover { background: var(--rose-deep); }
 .album-back-link:focus-visible { outline: 2px solid var(--rosewood-blush); outline-offset: 3px; }
 .album-back-link:active { transform: scale(.97); }
