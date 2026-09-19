@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const WALKING_ASSETS = {
-  forward: "/manus-storage/dreamhouse-walkers-cadence-locked-640_78c5c681.webm",
-  reverse: "/manus-storage/dreamhouse-walkers-cadence-locked-640_78c5c681.webm",
+  forward: "/manus-storage/dreamhouse-walkers-forward-keyed_78c5c681.webm",
+  reverse: "/manus-storage/dreamhouse-walkers-forward-keyed_78c5c681.webm",
 } as const;
 const HEADER_WALK_POSTER = "/manus-storage/dreamhouse-walkers-poster_5f638e33.png";
 const TURNAROUND_DELAY_MS = 500;
@@ -70,14 +70,15 @@ export default function HeaderWalkVideo() {
           <video
             ref={forwardRef}
             className="header-walk-video"
-            src={WALKING_ASSETS.forward}
             poster={HEADER_WALK_POSTER}
             muted
             playsInline
             preload="auto"
             onPlaying={forwardIsActive ? () => setIsPlaying(true) : undefined}
             onEnded={forwardIsActive ? continueFromSameEdge : undefined}
-          />
+          >
+            <source src={WALKING_ASSETS.forward} type="video/webm" />
+          </video>
         </div>
       </div>
       <div
@@ -87,14 +88,15 @@ export default function HeaderWalkVideo() {
           <video
             ref={reverseRef}
             className="header-walk-video"
-            src={WALKING_ASSETS.reverse}
             poster={HEADER_WALK_POSTER}
             muted
             playsInline
             preload="auto"
             onPlaying={reverseIsActive ? () => setIsPlaying(true) : undefined}
             onEnded={reverseIsActive ? continueFromSameEdge : undefined}
-          />
+          >
+            <source src={WALKING_ASSETS.reverse} type="video/webm" />
+          </video>
         </div>
       </div>
     </div>

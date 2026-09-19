@@ -8,7 +8,8 @@ const css = readFileSync(new URL("../index.css", import.meta.url), "utf8");
 describe("header walking video", () => {
   it("keeps both directional passes preloaded and alternates them after every completed exit", () => {
     expect(rail).toContain("<HeaderWalkVideo />");
-    expect(video).toContain("dreamhouse-walkers-cadence-locked-640_78c5c681.webm");
+    expect(video).toContain("dreamhouse-walkers-forward-keyed_78c5c681.webm");
+    expect(video).toContain('type="video/webm"');
     expect(video).toContain("TURNAROUND_DELAY_MS = 500");
     expect(video).toContain("forwardRef");
     expect(video).toContain("reverseRef");
