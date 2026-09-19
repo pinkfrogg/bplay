@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 
 const WALKING_ASSETS = {
-  forward: "/manus-storage/dreamhouse-walkers-cadence-locked-640_122fd97c.webm",
-  reverse: "/manus-storage/dreamhouse-walkers-cadence-locked-640_122fd97c.webm",
+  forward: "/manus-storage/dreamhouse-walkers-cadence-locked-640_78c5c681.webm",
+  reverse: "/manus-storage/dreamhouse-walkers-cadence-locked-640_78c5c681.webm",
 } as const;
 const HEADER_WALK_POSTER = "/manus-storage/dreamhouse-walkers-poster_5f638e33.png";
 const TURNAROUND_DELAY_MS = 500;
