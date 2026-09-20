@@ -9,7 +9,7 @@ import { Link } from "wouter";
 export default function AdminPage() {
   const utils = trpc.useUtils();
   const session = trpc.admin.status.useQuery(undefined, { retry: false, refetchOnWindowFocus: false });
-  const catalogQuery = trpc.catalog.list.useQuery(undefined, { enabled: session.data?.authenticated === true });
+  const catalogQuery = trpc.catalog.list.useQuery(undefined, { enabled: session.data?.authenticated === true, staleTime: Infinity });
   const login = trpc.admin.login.useMutation();
   const logout = trpc.admin.logout.useMutation();
   const [email, setEmail] = useState("");
