@@ -93,14 +93,5 @@ export const catalogTracks = mysqlTable("catalogTracks", {
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
 });
 
-export const relatedAlbums = mysqlTable("relatedAlbums", {
-  id: int("id").autoincrement().primaryKey(),
-  albumId: int("albumId").notNull().references(() => catalogAlbums.id, { onDelete: "cascade" }),
-  relatedAlbumId: int("relatedAlbumId").notNull().references(() => catalogAlbums.id, { onDelete: "cascade" }),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-}, (table) => [
-  uniqueIndex("relatedAlbums_unique_idx").on(table.albumId, table.relatedAlbumId),
-]);
-
 export type CatalogAlbum = typeof catalogAlbums.$inferSelect;
 export type CatalogTrack = typeof catalogTracks.$inferSelect;
