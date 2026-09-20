@@ -246,6 +246,23 @@ export default function AlbumPage() {
             {lyricIndex < 0 && <p>The first line arrives with the music.</p>}
           </div> : <div className="lyrics-empty"><ListMusic size={22} /><div><strong>No lyrics found in the Dreamhouse</strong><span>Even pop-stars improvise. Lip-sync dramatically, bestie</span></div></div>}
         </section>
+
+        {album.relatedReleases && album.relatedReleases.length > 0 && (
+          <section className="related-releases-section">
+            <div className="album-page-section-heading"><h2>Related Releases</h2></div>
+            <div className="related-releases-carousel">
+              {album.relatedReleases.map((release) => (
+                <Link key={release.id} href={catalogAlbumPath(release)} className="sleeve-entry">
+                  <div className="sleeve-cover"><img src={release.coverImage} alt={release.title} /></div>
+                  <div className="sleeve-details">
+                    <p className="sleeve-title">{release.title}</p>
+                    <p className="sleeve-tracks">{release.releaseYear ?? "—"}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
+        )}
       </>}
     </main>
   </div>;

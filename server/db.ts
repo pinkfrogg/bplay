@@ -1,6 +1,6 @@
 import { and, asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { catalogAlbums, catalogTracks } from "../drizzle/schema";
+import { catalogAlbums, catalogTracks, relatedAlbums } from "../drizzle/schema";
 import { groupCatalog, makeTrackOrder } from "./catalog";
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -21,26 +21,102 @@ export async function getDb() {
 export async function listPublicCatalog() {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [albums, tracks] = await Promise.all([
+  const [albums, tracks, related] = await Promise.all([
     db.select().from(catalogAlbums).orderBy(asc(catalogAlbums.sortOrder), asc(catalogAlbums.id)),
     db.select().from(catalogTracks).orderBy(asc(catalogTracks.albumId), asc(catalogTracks.sortOrder), asc(catalogTracks.id)),
+    db.select().from(relatedAlbums),
   ]);
-  return groupCatalog(albums, tracks);
+
+  const albumList = groupCatalog(albums, tracks);
+
+  return albumList.map(album => {
+    const relatedIds = new Set(
+      related
+        .filter(r => r.albumId === album.id || r.relatedAlbumId === album.id)
+        .map(r => r.albumId === album.id ? r.relatedAlbumId : r.albumId)
+    );
+
+    const relatedReleases = Array.from(relatedIds)
+      .map(id => albumList.find(a => a.id === id))
+      .filter((a): a is NonNullable<typeof a> => a !== undefined);
+
+    return {
+      ...album,
+      relatedReleases,
+    };
+  });
 }
 
-export async function createCatalogAlbum(input: { title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function createCatalogAlbum(input: { title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number; relatedReleases?: number[] }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [result] = await db.insert(catalogAlbums).values(input);
-  const album = await db.select().from(catalogAlbums).where(eq(catalogAlbums.id, Number(result.insertId))).limit(1);
+
+  const valuesToInsert = {
+    title: input.title,
+    coverImage: input.coverImage,
+    vinylImage: input.vinylImage,
+    releaseYear: input.releaseYear,
+    sortOrder: input.sortOrder
+  };
+
+  const [result] = await db.insert(catalogAlbums).values(valuesToInsert);
+  const insertId = Number(result.insertId);
+
+  if (input.relatedReleases && input.relatedReleases.length > 0) {
+    await updateRelatedAlbums(insertId, input.relatedReleases);
+  }
+
+  const album = await db.select().from(catalogAlbums).where(eq(catalogAlbums.id, insertId)).limit(1);
   if (!album[0]) throw new Error("Album could not be created");
   return album[0];
 }
 
-export async function updateCatalogAlbum(input: { id: number; title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function updateCatalogAlbum(input: { id: number; title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number; relatedReleases?: number[] }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   await db.update(catalogAlbums).set({ title: input.title, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+
+  if (input.relatedReleases) {
+    await updateRelatedAlbums(input.id, input.relatedReleases);
+  }
+}
+
+export async function updateRelatedAlbums(albumId: number, relatedAlbumIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  // Remove all existing relations for this album
+  await db.delete(relatedAlbums).where(eq(relatedAlbums.albumId, albumId));
+  await db.delete(relatedAlbums).where(eq(relatedAlbums.relatedAlbumId, albumId));
+
+  // Insert new bi-directional relations
+  for (const relatedId of relatedAlbumIds) {
+    if (relatedId !== albumId) {
+      // Always store with smaller ID first to avoid duplicates and simplify bi-directional queries
+      const [id1, id2] = [albumId, relatedId].sort((a, b) => a - b);
+
+      try {
+        await db.insert(relatedAlbums).values({
+          albumId: id1,
+          relatedAlbumId: id2,
+        });
+      } catch (err: any) {
+        // Ignore duplicate entry errors
+        if (err.code !== 'ER_DUP_ENTRY') {
+          throw err;
+        }
+      }
+    }
+  }
+}
+
+export async function reorderCatalogAlbums(albumIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  for (const item of makeTrackOrder(albumIds)) {
+    await db.update(catalogAlbums).set({ sortOrder: item.sortOrder }).where(eq(catalogAlbums.id, item.id));
+  }
 }
 
 export async function deleteCatalogAlbum(id: number) {
