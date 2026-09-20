@@ -1,0 +1,99 @@
+<<<<<<< SEARCH
+import { catalogAlbums, catalogTracks } from "../drizzle/schema";
+=======
+import { catalogAlbums, catalogTracks, relatedAlbums } from "../drizzle/schema";
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+export async function listPublicCatalog() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [albums, tracks] = await Promise.all([
+    db.select().from(catalogAlbums).orderBy(asc(catalogAlbums.sortOrder), asc(catalogAlbums.id)),
+    db.select().from(catalogTracks).orderBy(asc(catalogTracks.albumId), asc(catalogTracks.sortOrder), asc(catalogTracks.id)),
+  ]);
+  return groupCatalog(albums, tracks);
+}
+=======
+export async function listPublicCatalog() {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const [albums, tracks, related] = await Promise.all([
+    db.select().from(catalogAlbums).orderBy(asc(catalogAlbums.sortOrder), asc(catalogAlbums.id)),
+    db.select().from(catalogTracks).orderBy(asc(catalogTracks.albumId), asc(catalogTracks.sortOrder), asc(catalogTracks.id)),
+    db.select().from(relatedAlbums),
+  ]);
+
+  const albumList = groupCatalog(albums, tracks);
+
+  return albumList.map(album => {
+    const relatedIds = new Set(
+      related
+        .filter(r => r.albumId === album.id || r.relatedAlbumId === album.id)
+        .map(r => r.albumId === album.id ? r.relatedAlbumId : r.albumId)
+    );
+
+    const relatedReleases = Array.from(relatedIds)
+      .map(id => albumList.find(a => a.id === id))
+      .filter((a): a is NonNullable<typeof a> => a !== undefined);
+
+    return {
+      ...album,
+      relatedReleases,
+    };
+  });
+}
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+export async function updateCatalogAlbum(input: { id: number; title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+=======
+export async function updateCatalogAlbum(input: { id: number; title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number; relatedReleases?: number[] }) {
+>>>>>>> REPLACE
+<<<<<<< SEARCH
+  await db.update(catalogAlbums).set({ title: input.title, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+}
+=======
+  await db.update(catalogAlbums).set({ title: input.title, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+
+  if (input.relatedReleases) {
+    await updateRelatedAlbums(input.id, input.relatedReleases);
+  }
+}
+
+export async function updateRelatedAlbums(albumId: number, relatedAlbumIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  // Remove all existing relations for this album
+  await db.delete(relatedAlbums).where(eq(relatedAlbums.albumId, albumId));
+  await db.delete(relatedAlbums).where(eq(relatedAlbums.relatedAlbumId, albumId));
+
+  // Insert new bi-directional relations
+  for (const relatedId of relatedAlbumIds) {
+    if (relatedId !== albumId) {
+      // Always store with smaller ID first to avoid duplicates and simplify bi-directional queries
+      const [id1, id2] = [albumId, relatedId].sort((a, b) => a - b);
+
+      try {
+        await db.insert(relatedAlbums).values({
+          albumId: id1,
+          relatedAlbumId: id2,
+        });
+      } catch (err: any) {
+        // Ignore duplicate entry errors
+        if (err.code !== 'ER_DUP_ENTRY') {
+          throw err;
+        }
+      }
+    }
+  }
+}
+
+export async function reorderCatalogAlbums(albumIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  for (const item of makeTrackOrder(albumIds)) {
+    await db.update(catalogAlbums).set({ sortOrder: item.sortOrder }).where(eq(catalogAlbums.id, item.id));
+  }
+}
+>>>>>>> REPLACE
