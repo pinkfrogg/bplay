@@ -76,6 +76,21 @@ export async function deleteCatalogTrack(id: number) {
   await db.delete(catalogTracks).where(eq(catalogTracks.id, id));
 }
 
+export async function reorderCatalogAlbums(albumIds: number[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  const existing = await db.select({ id: catalogAlbums.id }).from(catalogAlbums);
+  const existingIds = existing.map((album) => album.id).sort((a, b) => a - b);
+  const requestedIds = [...albumIds].sort((a, b) => a - b);
+  if (existingIds.length !== requestedIds.length || existingIds.some((id, index) => id !== requestedIds[index])) {
+    throw new Error("Album order must include every album exactly once.");
+  }
+  for (let index = 0; index < albumIds.length; index++) {
+    const id = albumIds[index];
+    await db.update(catalogAlbums).set({ sortOrder: index }).where(eq(catalogAlbums.id, id));
+  }
+}
+
 export async function reorderCatalogTracks(albumId: number, trackIds: number[]) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");

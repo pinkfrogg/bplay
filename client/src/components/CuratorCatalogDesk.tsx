@@ -18,11 +18,13 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
   const updateTrack = trpc.catalog.updateTrack.useMutation();
   const deleteTrack = trpc.catalog.deleteTrack.useMutation();
   const reorderTracks = trpc.catalog.reorderTracks.useMutation();
+  const reorderAlbums = trpc.catalog.reorderAlbums.useMutation();
   const fetchMp3Metadata = trpc.catalog.fetchMp3Metadata.useMutation();
   const [query, setQuery] = useState("");
   const [albumFilter, setAlbumFilter] = useState("all");
   const [message, setMessage] = useState("");
   const [dragged, setDragged] = useState<{ albumId: number; trackId: number } | null>(null);
+  const [draggedAlbumId, setDraggedAlbumId] = useState<number | null>(null);
   const [expandedAlbumId, setExpandedAlbumId] = useState<number | null>(null);
   const [albumTitle, setAlbumTitle] = useState("");
   const [coverImage, setCoverImage] = useState("");
@@ -148,6 +150,37 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
     void saveOrder(album, next);
   };
 
+  const saveAlbumOrder = async (next: Album[]) => {
+    try {
+      await reorderAlbums.mutateAsync({ albumIds: next.map(album => album.id) });
+      setMessage("Manual album order saved.");
+      await refresh();
+    } catch (error) {
+      setMessage(error instanceof Error ? error.message : "The album order could not be saved.");
+    }
+  };
+
+  const dropAlbum = (targetId: number) => {
+    if (!draggedAlbumId || draggedAlbumId === targetId) return;
+    const from = catalog.findIndex(album => album.id === draggedAlbumId);
+    const to = catalog.findIndex(album => album.id === targetId);
+    if (from < 0 || to < 0) return;
+    const next = [...catalog];
+    const [moving] = next.splice(from, 1);
+    next.splice(to, 0, moving);
+    setDraggedAlbumId(null);
+    void saveAlbumOrder(next);
+  };
+
+  const moveAlbum = (from: number, direction: -1 | 1) => {
+    const to = from + direction;
+    if (to < 0 || to >= catalog.length) return;
+    const next = [...catalog];
+    const [moving] = next.splice(from, 1);
+    next.splice(to, 0, moving);
+    void saveAlbumOrder(next);
+  };
+
   const removeAlbum = async (albumId: number) => {
     try {
       await deleteAlbum.mutateAsync({ id: albumId });
@@ -176,12 +209,33 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
     <div className="desk-search" role="search"><Search size={16} /><input aria-label="Search album or track" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search movie, song, or album artist" /><select aria-label="Filter by movie sleeve" value={albumFilter} onChange={event => setAlbumFilter(event.target.value)}><option value="all">All sleeves</option>{catalog.map(album => <option key={album.id} value={album.id}>{album.title}</option>)}</select></div>
     {message && <p className="editor-message" role="status">{message}</p>}
     <div className="desk-existing" aria-label="Saved movie sleeves">
-      {visibleAlbums.length ? visibleAlbums.map(album => {
+      {visibleAlbums.length ? visibleAlbums.map((album, index) => {
         const isExpanded = expandedAlbumId === album.id;
-        return <article className={isExpanded ? "desk-sleeve-entry desk-sleeve-entry--expanded" : "desk-sleeve-entry"} key={album.id}>
-          <button className="desk-sleeve-trigger" type="button" aria-expanded={isExpanded} aria-controls={`sleeve-editor-${album.id}`} onClick={() => setExpandedAlbumId(current => nextCuratorSleeveId(current, album.id))}><span>{album.title}</span>{isExpanded ? <ChevronUp size={17} aria-hidden="true" /> : <ChevronDown size={17} aria-hidden="true" />}</button>
+        const isFiltered = query !== "" || albumFilter !== "all";
+        let className = isExpanded ? "desk-sleeve-entry desk-sleeve-entry--expanded" : "desk-sleeve-entry";
+        if (draggedAlbumId === album.id) className += " desk-sleeve-entry--dragging";
+
+        return <article className={className} key={album.id} onDragOver={event => { if (!isFiltered) event.preventDefault(); }} onDrop={() => { if (!isFiltered) dropAlbum(album.id); }}>
+          <div className="desk-sleeve-header">
+            <button className="desk-sleeve-trigger" type="button" aria-expanded={isExpanded} aria-controls={`sleeve-editor-${album.id}`} onClick={() => setExpandedAlbumId(current => nextCuratorSleeveId(current, album.id))}>
+              <span className="desk-sleeve-title-wrapper" draggable={!isFiltered} onDragStart={event => { if (!isFiltered) setDraggedAlbumId(album.id); else event.preventDefault(); }} onDragEnd={() => setDraggedAlbumId(null)}>
+                {!isFiltered && <GripVertical className="desk-album-drag-icon" size={15} />}
+                <span>{album.title}</span>
+              </span>
+              {isExpanded ? <ChevronUp size={17} aria-hidden="true" /> : <ChevronDown size={17} aria-hidden="true" />}
+            </button>
+          </div>
           {isExpanded && <div id={`sleeve-editor-${album.id}`} className="desk-sleeve-editor">
-            <form className="desk-album" onSubmit={event => void saveAlbum(event, album)}><div className="desk-inline-title"><h3>Movie sleeve</h3><button className="desk-delete" type="button" onClick={() => void removeAlbum(album.id)}><Trash2 size={14} /> Remove sleeve</button></div><label>Album title<input name="title" defaultValue={album.title} required /></label><label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} defaultValue={album.releaseYear ?? ""} placeholder="e.g. 2002" /></label><label>DVD / sleeve image URL<input name="coverImage" defaultValue={album.coverImage} required /></label><label>Full vinyl image URL<input name="vinylImage" defaultValue={album.vinylImage ?? ""} /></label><button type="submit" disabled={updateAlbum.isPending}><Save size={14} /> Update artwork</button></form>
+            <form className="desk-album" onSubmit={event => void saveAlbum(event, album)}>
+              <div className="desk-inline-title">
+                <h3>Movie sleeve</h3>
+                <div className="track-order-actions">
+                  {!isFiltered && <button type="button" className="desk-delete" disabled={index === 0} onClick={() => moveAlbum(index, -1)}><ArrowUp size={13} /> Up</button>}
+                  {!isFiltered && <button type="button" className="desk-delete" disabled={index === catalog.length - 1} onClick={() => moveAlbum(index, 1)}><ArrowDown size={13} /> Down</button>}
+                  <button className="desk-delete" type="button" onClick={() => void removeAlbum(album.id)}><Trash2 size={14} /> Remove sleeve</button>
+                </div>
+              </div>
+              <label>Album title<input name="title" defaultValue={album.title} required /></label><label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} defaultValue={album.releaseYear ?? ""} placeholder="e.g. 2002" /></label><label>DVD / sleeve image URL<input name="coverImage" defaultValue={album.coverImage} required /></label><label>Full vinyl image URL<input name="vinylImage" defaultValue={album.vinylImage ?? ""} /></label><button type="submit" disabled={updateAlbum.isPending}><Save size={14} /> Update artwork</button></form>
             <p className="drag-hint"><GripVertical size={14} /> Fetched track numbers set the initial play order. Drag or use Move up and Move down to arrange it further.</p>
             {album.tracks.map((track, index) => <form className={dragged?.trackId === track.id ? "desk-track desk-track--dragging" : "desk-track"} key={track.id} onSubmit={event => void saveTrack(event, track)} onDragOver={event => event.preventDefault()} onDrop={() => dropTrack(album, track.id)}><div className="desk-inline-title"><h4 draggable onDragStart={() => setDragged({ albumId: album.id, trackId: track.id })} onDragEnd={() => setDragged(null)} className="track-drag-handle"><GripVertical size={15} /> {track.trackNumber ? `Track ${track.trackNumber}` : `Track ${index + 1}`}</h4><div className="track-order-actions"><button type="button" className="desk-delete" disabled={index === 0} onClick={() => moveTrack(album, index, -1)}><ArrowUp size={13} /> Up</button><button type="button" className="desk-delete" disabled={index === album.tracks.length - 1} onClick={() => moveTrack(album, index, 1)}><ArrowDown size={13} /> Down</button><button className="desk-delete" type="button" onClick={() => void removeTrack(track.id)}><Trash2 size={14} /> Remove</button></div></div><label>Song title<input name="title" defaultValue={track.title} required /></label><label>Direct MP3 URL<input name="audioUrl" defaultValue={track.audioUrl} required /></label><label>LRC URL (optional)<input name="lrcUrl" type="url" defaultValue={track.lrcUrl ?? ""} placeholder="Paste a direct .lrc link" /></label><div className="tag-grid"><label>Track number<input name="trackNumber" type="number" min="1" defaultValue={track.trackNumber ?? ""} /></label><label>Album artist(s)<input name="albumArtists" defaultValue={track.albumArtists ?? ""} /></label><label>Duration seconds<input name="durationSeconds" type="number" min="1" defaultValue={track.durationSeconds ?? ""} /></label></div><button type="submit" disabled={updateTrack.isPending}><Save size={14} /> Update track</button></form>)}
           </div>}

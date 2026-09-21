@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { createCatalogAlbum, createCatalogTrack, deleteCatalogAlbum, deleteCatalogTrack, listPublicCatalog, reorderCatalogTracks, updateCatalogAlbum, updateCatalogTrack } from "./db";
+import { createCatalogAlbum, createCatalogTrack, deleteCatalogAlbum, deleteCatalogTrack, listPublicCatalog, reorderCatalogAlbums, reorderCatalogTracks, updateCatalogAlbum, updateCatalogTrack } from "./db";
 import { readMp3Metadata } from "./mp3Metadata";
 import { readLrc } from "./lrc.ts";
 import { publicProcedure, router } from "./_core/trpc";
@@ -37,6 +37,7 @@ export const appRouter = router({
     createTrack: ownerProcedure.input(catalogTrackInput.extend({ albumId: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogTrack(input)),
     updateTrack: ownerProcedure.input(catalogTrackInput.extend({ id: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogTrack(input)),
     deleteTrack: ownerProcedure.input(z.object({ id: z.number().int().positive() })).mutation(({ input }) => deleteCatalogTrack(input.id)),
+    reorderAlbums: ownerProcedure.input(z.object({ albumIds: z.array(z.number().int().positive()).min(1).refine((ids) => new Set(ids).size === ids.length, "Album IDs must be unique.") })).mutation(({ input }) => reorderCatalogAlbums(input.albumIds)),
     reorderTracks: ownerProcedure.input(z.object({ albumId: z.number().int().positive(), trackIds: z.array(z.number().int().positive()).min(1).refine((ids) => new Set(ids).size === ids.length, "Track IDs must be unique.") })).mutation(({ input }) => reorderCatalogTracks(input.albumId, input.trackIds)),
     fetchMp3Metadata: ownerProcedure.input(z.object({ audioUrl: z.string().url().max(2048) })).mutation(({ input }) => readMp3Metadata(input.audioUrl)),
     fetchLrc: publicProcedure.input(z.object({ lrcUrl: z.string().url().max(2048) })).mutation(({ input }) => readLrc(input.lrcUrl)),
