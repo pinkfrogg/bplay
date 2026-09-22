@@ -70,7 +70,6 @@ export const catalogAlbums = mysqlTable("catalogAlbums", {
   coverImage: text("coverImage").notNull(),
   vinylImage: text("vinylImage"),
   releaseYear: int("releaseYear"),
-  trackFormat: varchar("trackFormat", { length: 255 }),
   sortOrder: int("sortOrder").notNull().default(0),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
   updatedAt: timestamp("updatedAt").defaultNow().onUpdateNow().notNull(),
