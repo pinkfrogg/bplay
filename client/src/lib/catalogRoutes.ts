@@ -21,6 +21,7 @@ export type CatalogAlbum = {
   coverImage: string;
   vinylImage?: string | null;
   releaseYear?: number | null;
+  trackFormat?: string | null;
   tracks: CatalogTrack[];
 };
 
