@@ -57,13 +57,6 @@
       "when": 1787439182479,
       "tag": "0007_brave_tyrannus",
       "breakpoints": true
-    },
-    {
-      "idx": 8,
-      "version": "5",
-      "when": 1790082000118,
-      "tag": "0008_bright_mandrill",
-      "breakpoints": true
     }
   ]
 }
