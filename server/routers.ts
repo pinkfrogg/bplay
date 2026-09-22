@@ -31,8 +31,8 @@ export const appRouter = router({
   }),
   catalog: router({
     list: publicProcedure.query(() => listPublicCatalog()),
-    createAlbum: ownerProcedure.input(z.object({ title: z.string().min(1).max(255), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogAlbum(input)),
-    updateAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive(), title: z.string().min(1).max(255), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogAlbum(input)),
+    createAlbum: ownerProcedure.input(z.object({ title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogAlbum(input)),
+    updateAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive(), title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogAlbum(input)),
     deleteAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive() })).mutation(({ input }) => deleteCatalogAlbum(input.id)),
     createTrack: ownerProcedure.input(catalogTrackInput.extend({ albumId: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogTrack(input)),
     updateTrack: ownerProcedure.input(catalogTrackInput.extend({ id: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogTrack(input)),
