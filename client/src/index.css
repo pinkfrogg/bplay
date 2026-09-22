@@ -6,8 +6,8 @@
 :root {
   --rosewood-blush: #b45d70;
   --rose-deep: #7f3548;
-  --icon-active: #c21a48;
-  --icon-active-hover: #9c1238;
+  --icon-active: var(--rosewood-blush);
+  --icon-active-hover: var(--rose-deep);
   --ink: #342422;
   --muted-ink: #765f5b;
   --paper: #f5eee7;
@@ -379,7 +379,7 @@ input[type="range"] { width: 100%; height: 5px; accent-color: var(--rosewood-blu
 @keyframes equalize { from { transform: scaleY(.5); } to { transform: scaleY(1); } }
 .remove-button { width: 42px; height: 100%; border-top: 0; border-right: 0; border-bottom: 0; }
 
-.theme-evening { --ink: #f1e6df; --muted-ink: #c8aea9; --paper: #20191c; --paper-dark: #33272b; --line: rgba(240,216,208,.19); --rosewood-blush: #bc6c82; --rose-deep: #df9aab; --icon-active: #ff477e; --icon-active-hover: #ff709b; }
+.theme-evening { --ink: #f1e6df; --muted-ink: #c8aea9; --paper: #20191c; --paper-dark: #33272b; --line: rgba(240,216,208,.19); --rosewood-blush: #bc6c82; --rose-deep: #df9aab; --icon-active: var(--rosewood-blush); --icon-active-hover: var(--rose-deep); }
 .theme-evening .listening-stage { background: radial-gradient(circle at 70% 5%, #3d2d35 0, #20191c 44%, #171315 100%); }
 .theme-evening .listening-stage::before { opacity: .16; filter: invert(1); }
 .theme-evening .collection-glitter { mix-blend-mode: screen; }
