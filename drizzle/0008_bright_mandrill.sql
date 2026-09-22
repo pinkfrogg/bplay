@@ -1,0 +1,1 @@
+ALTER TABLE `catalogAlbums` ADD `trackFormat` varchar(255);
