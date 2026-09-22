@@ -18,7 +18,6 @@ export type CatalogTrack = {
 export type CatalogAlbum = {
   id: number;
   title: string;
-  subtitle?: string | null;
   coverImage: string;
   vinylImage?: string | null;
   releaseYear?: number | null;

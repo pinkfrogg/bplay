@@ -1,1 +1,0 @@
-ALTER TABLE `catalogAlbums` ADD `subtitle` varchar(255);
