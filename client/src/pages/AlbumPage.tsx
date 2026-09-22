@@ -218,7 +218,7 @@ export default function AlbumPage() {
           <Link className="album-back-link" href="/">← Back to discography</Link>
           <div className="album-page-heading">
             <span className="album-page-sleeve"><img src={cover} alt={`${albumTitle} DVD sleeve`} /><i>DVD / SOUNDTRACK</i></span>
-            <div><p className="eyebrow">Movie soundtrack</p><h1>{albumTitle}</h1><p>{album ? `${album.releaseYear ?? "—"} • ${album.tracks.length} TRACKS` : catalogQuery.isLoading ? "Opening the album…" : "This sleeve is unavailable."}</p></div>
+            <div><p className="eyebrow">{album?.subtitle ?? "Movie soundtrack"}</p><h1>{albumTitle}</h1><p>{album ? `${album.releaseYear ?? "—"} • ${album.tracks.length} TRACKS` : catalogQuery.isLoading ? "Opening the album…" : "This sleeve is unavailable."}</p></div>
           </div>
         </div>
         <div className="stage-tools"><button className="theme-toggle" type="button" aria-label="Toggle evening dusk theme" onClick={toggleTheme}>{theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}{theme === "dark" ? "Daylight" : "Evening dusk"}</button></div>
