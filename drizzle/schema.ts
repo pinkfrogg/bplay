@@ -67,6 +67,7 @@ export type MusicLyrics = typeof musicLyrics.$inferSelect;
 export const catalogAlbums = mysqlTable("catalogAlbums", {
   id: int("id").autoincrement().primaryKey(),
   title: varchar("title", { length: 255 }).notNull(),
+  subtitle: varchar("subtitle", { length: 255 }),
   coverImage: text("coverImage").notNull(),
   vinylImage: text("vinylImage"),
   releaseYear: int("releaseYear"),
