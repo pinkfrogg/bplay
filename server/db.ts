@@ -28,7 +28,7 @@ export async function listPublicCatalog() {
   return groupCatalog(albums, tracks);
 }
 
-export async function createCatalogAlbum(input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function createCatalogAlbum(input: { title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
   const [result] = await db.insert(catalogAlbums).values(input);
@@ -37,10 +37,10 @@ export async function createCatalogAlbum(input: { title: string; subtitle?: stri
   return album[0];
 }
 
-export async function updateCatalogAlbum(input: { id: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function updateCatalogAlbum(input: { id: number; title: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(catalogAlbums).set({ title: input.title, subtitle: input.subtitle, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+  await db.update(catalogAlbums).set({ title: input.title, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
 }
 
 export async function deleteCatalogAlbum(id: number) {
