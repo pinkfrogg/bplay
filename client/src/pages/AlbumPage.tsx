@@ -9,7 +9,7 @@ import type { LrcCue } from "@/lib/lrc";
 import { activeLyricCueIndex, lyricStageCues, selectedTrackLyricCues } from "@/lib/lyricPlayback";
 import { searchSuggestionReserveHeight } from "@/lib/searchLayout";
 import { trpc } from "@/lib/trpc";
-import { ChevronLeft, ChevronRight, Disc3, ListMusic, Moon, Pause, Play, Sun, Volume2 } from "lucide-react";
+import { SkipBack, SkipForward, Disc3, ListMusic, Moon, Pause, Play, Sun, Volume2, Repeat, Repeat1 } from "lucide-react";
 import { Link, useLocation, useParams } from "wouter";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -37,6 +37,7 @@ export default function AlbumPage() {
   const [seeking, setSeeking] = useState(false);
   const [volume, setVolume] = useState(0.8);
   const [spectrum, setSpectrum] = useState(IDLE_SPECTRUM);
+  const [loopMode, setLoopMode] = useState<"all" | "track">("all");
   const [error, setError] = useState("");
   const [lrcCues, setLrcCues] = useState<LrcCue[]>([]);
   const { theme, toggleTheme } = useTheme();
@@ -159,6 +160,8 @@ export default function AlbumPage() {
     }
   }, [album, searchAutoplayApplied, searchedTrackId]);
 
+  const toggleLoop = () => setLoopMode(mode => mode === "all" ? "track" : "all");
+
   const move = (direction: -1 | 1) => {
     if (!tracks.length) return;
     const next = tracks[(index < 0 ? 0 : index + direction + tracks.length) % tracks.length];
@@ -206,7 +209,18 @@ export default function AlbumPage() {
       onDurationChange={event => Number.isFinite(event.currentTarget.duration) && setDuration(event.currentTarget.duration)}
       onSeeking={() => setSeeking(true)}
       onSeeked={event => { setSeeking(false); setElapsed(event.currentTarget.currentTime); }}
-      onEnded={() => { setElapsed(progressLimit); move(1); }}
+      onEnded={() => {
+        setElapsed(progressLimit);
+        if (loopMode === "track") {
+          if (audioRef.current) {
+            audioRef.current.currentTime = 0;
+            void audioRef.current.play();
+            setElapsed(0);
+          }
+        } else {
+          move(1);
+        }
+      }}
       onError={() => setError("This MP3 could not play. The curator should confirm its direct link.")}
     />
     <ListeningRail search={{ query: searchQuery, isLoading: catalogQuery.isLoading, suggestions, message: searchMessage, onQueryChange: value => { setSearchQuery(value); setSearchMessage(""); }, onSubmit: searchCollection, onSelect: openSearchResult }} />
@@ -238,7 +252,7 @@ export default function AlbumPage() {
           <div className="track-details"><MarqueeTitle active={Boolean(track && playing)}>{track?.title ?? "Pick a song to begin the listening room."}</MarqueeTitle>{track && <><p className="artist-line">{track.albumArtists || track.artist}</p><p className="album-credit">{album.title}</p></>}{error && <p className="playback-error">{error}</p>}</div>
         </section>
         <section className={`visualizer visualizer--minimal ${playing ? "visualizer--active" : ""}`}><div className="spectrum-bars">{spectrum.map((level, itemIndex) => <i key={itemIndex} style={{ height: `${Math.round(level * 100)}%` }} />)}</div></section>
-        <section className="transport"><div className="timeline-row"><span>{clock(elapsed)}</span><input className="progress-scrubber" aria-label="Drag to seek anywhere in the track" aria-valuetext={`${clock(elapsed)} of ${clock(progressLimit)}`} type="range" min="0" max={progressLimit || 1} step="0.01" value={Math.min(elapsed, progressLimit || 0)} disabled={!track || !progressLimit} onPointerDown={() => setSeeking(true)} onPointerUp={event => { const time = Number((event.currentTarget as HTMLInputElement).value); if (audioRef.current) audioRef.current.currentTime = time; setElapsed(time); setSeeking(false); }} onChange={event => { const time = Number(event.target.value); setElapsed(time); if (audioRef.current) audioRef.current.currentTime = time; }} /><span>{clock(progressLimit)}</span></div><div className="control-row"><button className="icon-button" data-label="PREV" onClick={() => move(-1)} disabled={tracks.length < 2}><ChevronLeft size={20} /></button><button className="play-button" aria-label={playing ? "Pause" : "Play"} onClick={toggle} disabled={!track}>{playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}</button><button className="icon-button" data-label="NEXT" onClick={() => move(1)} disabled={tracks.length < 2}><ChevronRight size={20} /></button><label className="volume-control"><Volume2 size={16} /><input aria-label="Volume" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))} /><span>{Math.round(volume * 100)}</span></label></div></section>
+        <section className="transport"><div className="timeline-row"><span>{clock(elapsed)}</span><input className="progress-scrubber" aria-label="Drag to seek anywhere in the track" aria-valuetext={`${clock(elapsed)} of ${clock(progressLimit)}`} type="range" min="0" max={progressLimit || 1} step="0.01" value={Math.min(elapsed, progressLimit || 0)} disabled={!track || !progressLimit} onPointerDown={() => setSeeking(true)} onPointerUp={event => { const time = Number((event.currentTarget as HTMLInputElement).value); if (audioRef.current) audioRef.current.currentTime = time; setElapsed(time); setSeeking(false); }} onChange={event => { const time = Number(event.target.value); setElapsed(time); if (audioRef.current) audioRef.current.currentTime = time; }} /><span>{clock(progressLimit)}</span></div><div className="control-row"><button className={`icon-button ${loopMode === "track" ? "icon-button--active" : ""}`} aria-label="Toggle loop mode" onClick={toggleLoop}>{loopMode === "track" ? <Repeat1 size={20} /> : <Repeat size={20} />}</button><button className="icon-button" aria-label="Previous track" onClick={() => move(-1)} disabled={tracks.length < 2}><SkipBack size={20} fill="currentColor" /></button><button className="play-button" aria-label={playing ? "Pause" : "Play"} onClick={toggle} disabled={!track}>{playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}</button><button className="icon-button" aria-label="Next track" onClick={() => move(1)} disabled={tracks.length < 2}><SkipForward size={20} fill="currentColor" /></button><label className="volume-control"><Volume2 size={16} /><input aria-label="Volume" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))} /><span>{Math.round(volume * 100)}</span></label></div></section>
         <section className="lyrics-section">
           <div className="lyrics-header"><div className="section-heading"><ListMusic size={18} aria-hidden="true" /><h2>Lyrics</h2></div></div>
           {lyricCues.length ? <div className={lyricIndex < 0 ? "lyric-stage lyric-stage--waiting" : "lyric-stage"} aria-live="polite">
