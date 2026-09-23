@@ -13,8 +13,8 @@ describe("collection atmosphere effects", () => {
     expect(albumPage).toContain("<CollectionGlitter />");
     expect(app).toContain("<PixieTrail />");
     expect(css).toContain(".collection-glitter");
-    expect(css).toContain(".theme-evening .collection-glitter::before");
-    expect(css).toContain(".theme-evening .pixie-particle");
+    expect(css).toContain(".collection-glitter::before");
+    expect(css).toContain(".pixie-particle");
     expect(css).toContain("mix-blend-mode: multiply");
     expect(css).toContain("mix-blend-mode: screen");
     expect(css).toContain("rgba(194,75,110,.58)");

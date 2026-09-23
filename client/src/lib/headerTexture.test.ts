@@ -25,8 +25,8 @@ describe("shared header texture", () => {
     expect(css).toContain(".rail-header-surface > :not(.rail-header-ornament) { position: relative; z-index: 1; }");
     expect(css).toContain(".rail-header-surface { position: relative; z-index: 1;");
     expect(css).toContain("background: transparent");
-    expect(css).toContain(".theme-evening .rail-brand");
-    expect(css).toContain(".theme-evening .rail-header-ornament");
+    expect(css).toContain(".rail-brand");
+    expect(css).toContain(".rail-header-ornament");
     expect(css).toContain(".rail-header-surface { position: relative; z-index: 1;");
     expect(css).toContain("background: transparent");
   });
