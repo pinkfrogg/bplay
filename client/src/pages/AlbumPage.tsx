@@ -2,14 +2,13 @@ import CollectionGlitter from "@/components/CollectionGlitter";
 import ListeningRail from "@/components/ListeningRail";
 import MarqueeTitle from "@/components/MarqueeTitle";
 import PrincessCrown from "@/components/PrincessCrown";
-import { useTheme } from "@/contexts/ThemeContext";
 import { catalogSearchPath, catalogSearchSuggestions, selectedTrackIdFromSearch } from "@/lib/catalogSearch";
 import { albumIdFromRouteParam, type CatalogAlbum, type CatalogTrack } from "@/lib/catalogRoutes";
 import type { LrcCue } from "@/lib/lrc";
 import { activeLyricCueIndex, lyricStageCues, selectedTrackLyricCues } from "@/lib/lyricPlayback";
 import { searchSuggestionReserveHeight } from "@/lib/searchLayout";
 import { trpc } from "@/lib/trpc";
-import { SkipBack, SkipForward, Disc3, ListMusic, Moon, Pause, Play, Sun, Volume2, Repeat, Repeat1, Shuffle } from "lucide-react";
+import { SkipBack, SkipForward, Disc3, ListMusic, Pause, Play, Volume2, Repeat, Repeat1, Shuffle } from "lucide-react";
 import { Link, useLocation, useParams } from "wouter";
 import { useEffect, useMemo, useRef, useState } from "react";
 
@@ -42,7 +41,6 @@ export default function AlbumPage() {
   const [playHistory, setPlayHistory] = useState<number[]>([]);
   const [error, setError] = useState("");
   const [lrcCues, setLrcCues] = useState<LrcCue[]>([]);
-  const { theme, toggleTheme } = useTheme();
   const tracks = album?.tracks ?? [];
   const track = tracks.find(item => item.id === trackId);
   const index = tracks.findIndex(item => item.id === trackId);
@@ -268,7 +266,6 @@ export default function AlbumPage() {
             <div><p className="eyebrow">{album?.subtitle ?? "Movie soundtrack"}</p><h1>{albumTitle}</h1><p>{album ? `${album.releaseYear ?? "—"} • ${album.tracks.length} TRACKS` : catalogQuery.isLoading ? "Opening the album…" : "This sleeve is unavailable."}</p></div>
           </div>
         </div>
-        <div className="stage-tools"><button className="theme-toggle" type="button" aria-label="Toggle evening dusk theme" onClick={toggleTheme}>{theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}{theme === "dark" ? "Daylight" : "Evening dusk"}</button></div>
       </header>
       <div className="rail-search-reserve" style={{ height: searchReserveHeight }} aria-hidden="true" />
       {catalogQuery.isLoading ? <section className="album-page-empty"><strong>Opening the soundtrack…</strong><span>The curated tracks are being arranged.</span></section> : !album ? <section className="album-page-empty"><strong>This movie sleeve is unavailable.</strong><Link href="/">Return to Discography</Link></section> : <>
