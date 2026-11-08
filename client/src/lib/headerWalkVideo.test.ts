@@ -33,8 +33,8 @@ describe("header walking video", () => {
     expect(css).toContain("44.897959%, 61.224490% { opacity: 1; transform: translateX(-50%);");
     expect(css).toContain("0% { opacity: 0; transform: translateX(calc(-50cqw - 100%)); }");
     expect(css).toContain("99.999% { opacity: 1; transform: translateX(50cqw); }");
-    expect(css).toContain(".rail-brand { display: grid; justify-items: start; gap: 3px; padding-bottom: 112px;");
-    expect(css).toContain(".rail-brand { padding-bottom: 150px; }");
+    expect(css).toContain(".rail-brand { background: url('https://file.garden/ajiuqJaWwnaROsKw/barbie-assets/header-paris-bg.png') bottom / cover no-repeat; display: grid; justify-items: start; gap: 3px; padding-bottom: 112px;");
+
     expect(css).toContain(".header-walk-pass, .header-walk-video { bottom: -1px; width: auto; height: 135px; object-fit: contain; }");
     expect(css).toContain(".header-walk-pass { display: none; animation: none; }");
   });
