@@ -257,7 +257,6 @@ export default function AlbumPage() {
     <ListeningRail search={{ query: searchQuery, isLoading: catalogQuery.isLoading, suggestions, message: searchMessage, onQueryChange: value => { setSearchQuery(value); setSearchMessage(""); }, onSubmit: searchCollection, onSelect: openSearchResult }} />
     <main className="listening-stage">
       <CollectionGlitter />
-      <img className="stage-atmosphere" src={HERO_ART} alt="" />
       <header className="album-page-header">
         <div className="album-page-header-main">
           <Link className="album-back-link" href="/">← Back to discography</Link>
