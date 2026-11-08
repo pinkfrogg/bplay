@@ -1,6 +1,5 @@
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import OpeningLoader from "@/components/OpeningLoader";
 import PixieTrail from "@/components/PixieTrail";
 import NotFound from "@/pages/NotFound";
 import { Redirect, Route, Switch } from "wouter";
@@ -34,7 +33,6 @@ function App() {
     <ErrorBoundary>
       <TooltipProvider>
         <Toaster />
-        <OpeningLoader />
         <PixieTrail />
         <Router />
       </TooltipProvider>
