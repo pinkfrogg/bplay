@@ -13,6 +13,6 @@ describe("album-page labels and navigation", () => {
   it("presents the back navigation with the shared dusty-pink accent treatment", () => {
     expect(albumPage).toContain('className="album-back-link" href="/"');
     expect(stylesheet).toContain(".album-back-link { display: inline-flex; align-items: center");
-    expect(stylesheet).toContain("background: #c27587");
+    expect(stylesheet).toContain("background: linear-gradient(135deg, #d98a9d, var(--rosewood-blush)");
   });
 });
