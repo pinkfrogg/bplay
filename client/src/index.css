@@ -209,7 +209,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .album-page-heading .eyebrow { margin-bottom: 4px; color: var(--muted-ink); }
 .album-page-heading h1 { max-width: 680px; margin: 0; font-family: var(--font-subdisplay); font-size: clamp(38px, 5vw, 68px); font-weight: 400; letter-spacing: -.05em; line-height: .9; }
 .album-page-heading p:last-child { margin: 10px 0 0; color: var(--muted-ink); font: 10px var(--font-metadata); letter-spacing: .08em; text-transform: uppercase; }
-.album-page-tracklist { margin: 16px 0 26px; padding: 16px; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(89,53,49,.22); box-shadow: inset 0 1px 0 rgba(255,255,255,.83), 0 9px 22px rgba(75,48,44,.05); }
+.album-page-tracklist { margin: 16px 0 26px; padding: 16px; background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(89,53,49,.22); box-shadow: 0 9px 22px rgba(75,48,44,.05); }
 .album-page-section-heading { display: flex; align-items: baseline; gap: 11px; padding-bottom: 11px;  }
 .album-page-section-heading .princess-crown { width: 20px; height: 15px; margin-bottom: 1px; }
 .album-page-section-heading h2 { margin: 0; font-family: var(--font-subdisplay); font-size: 27px; font-weight: 400; }
@@ -308,7 +308,8 @@ input[type="range"] { width: 100%; height: 5px; accent-color: var(--rosewood-blu
 .progress-scrubber::-moz-range-thumb { width: 13px; height: 13px; border: 2px solid #f7e6df; border-radius: 50%; background: var(--rosewood-blush); box-shadow: 0 1px 4px rgba(75,37,44,.32); }
 .control-row { display: flex; align-items: center; gap: 14px; margin-top: 16px; }
 .icon-button, .play-button, .remove-button { display: grid; place-items: center; color: var(--muted-ink); background: transparent; border: 1px solid transparent; transition: transform .16s cubic-bezier(.23,1,.32,1), color .16s; }
-.icon-button { position: relative; padding: 8px; width: 36px; height: 36px; background: #c27587; color: white; }
+.icon-button { position: relative; padding: 0; width: 36px; height: 36px; background: transparent; color: #dec4bd; }
+.icon-button:focus-visible { outline: 2px solid rgba(222, 196, 189, 0.5); outline-offset: 2px; border-radius: 4px; }
 .icon-button--active { color: var(--icon-active); }
 .icon-button:hover, .remove-button:hover { color: var(--rose-deep); transform: scale(1.05); }
 .icon-button--active:hover { color: var(--icon-active-hover); }
@@ -363,7 +364,7 @@ input[type="range"] { width: 100%; height: 5px; accent-color: var(--rosewood-blu
 .album-section, .visualizer, .transport, .album-queue-group { background-color: rgba(255,244,240,.035); }
 .album-card { color: #f3e5de; background: linear-gradient(135deg, rgba(72,48,57,.86), rgba(45,31,36,.82)); border-color: rgba(240,210,203,.2); box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 5px 7px 0 rgba(0,0,0,.18); }
 .album-card:hover, .album-card:focus-visible, .album-card:focus-within { border-color: #ef9bb1; box-shadow: inset 0 1px 0 rgba(255,255,255,.13), 8px 10px 0 rgba(0,0,0,.2), 0 0 0 1px rgba(255,174,195,.28), 0 0 21px rgba(244,128,160,.52), 0 0 41px rgba(246,166,191,.24); }
-.album-page-tracklist { background: rgba(255, 255, 255, 0.1); border-color: rgba(239,212,205,.3); box-shadow: inset 0 1px 0 rgba(255,255,255,.11), 0 12px 28px rgba(0,0,0,.24); backdrop-filter: blur(12px); }
+.album-page-tracklist { background: rgba(255, 255, 255, 0.08); border-color: rgba(239,212,205,.3); box-shadow: 0 12px 28px rgba(0,0,0,.24); }
 .album-page-section-heading, .album-page-track-button {  }
 .album-page-section-heading h2, .album-page-track-button { color: #f5e9e4; }
 .album-page-section-heading p, .album-page-track-button small, .album-page-track-button time { color: #d8c1bd; }
@@ -372,8 +373,8 @@ input[type="range"] { width: 100%; height: 5px; accent-color: var(--rosewood-blu
 .album-empty, .queue-empty { color: #cdb2ad; background: linear-gradient(90deg, rgba(188,108,130,.13), transparent 72%); }
 .album-empty strong { color: #f4e9e2; }
 .transport { background: #22171b; border-color: rgba(242,209,201,.21); box-shadow: 0 12px 30px rgba(0,0,0,.24), inset 0 1px 0 rgba(255,255,255,.1); }
-.icon-button { color: white; background: #c27587; box-shadow: none; }
-.icon-button:hover { color: #f3e4de; }
+.icon-button { color: #dec4bd; background: transparent; box-shadow: none; }
+.icon-button:hover { color: #fff6f1; }
 .icon-button--active { color: var(--icon-active); }
 .icon-button--active:hover { color: var(--icon-active-hover); }
 .volume-control { color: #dec4bd; background: rgba(255,255,255,.05); border-color: rgba(255,255,255,.12); }
