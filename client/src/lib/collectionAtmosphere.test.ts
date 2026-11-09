@@ -10,7 +10,7 @@ const pixieTrail = readFileSync(new URL("../components/PixieTrail.tsx", import.m
 describe("collection atmosphere effects", () => {
   it("layers the decorative glitter on collection and album pages, with the shared pointer trail mounted for every route", () => {
     expect(home).toContain("<CollectionGlitter />");
-    expect(albumPage).toContain("<CollectionGlitter />");
+    expect(albumPage).not.toContain("<CollectionGlitter />");
     expect(app).toContain("<PixieTrail />");
     expect(css).toContain(".collection-glitter");
     expect(css).toContain(".collection-glitter::before");

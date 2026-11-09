@@ -256,13 +256,13 @@ export default function AlbumPage() {
     />
     <ListeningRail search={{ query: searchQuery, isLoading: catalogQuery.isLoading, suggestions, message: searchMessage, onQueryChange: value => { setSearchQuery(value); setSearchMessage(""); }, onSubmit: searchCollection, onSelect: openSearchResult }} />
     <main className="listening-stage">
-      <CollectionGlitter />
+
       <img className="stage-atmosphere" src={HERO_ART} alt="" />
       <header className="album-page-header">
         <div className="album-page-header-main">
           <Link className="album-back-link" href="/">← Back to discography</Link>
           <div className="album-page-heading">
-            <span className="album-page-sleeve"><img src={cover} alt={`${albumTitle} DVD sleeve`} /><i>DVD / SOUNDTRACK</i></span>
+            <span className="album-page-sleeve"><img src={cover} alt={`${albumTitle} DVD sleeve`} /></span>
             <div><p className="eyebrow">{album?.subtitle ?? "Movie soundtrack"}</p><h1>{albumTitle}</h1><p>{album ? `${album.releaseYear ?? "—"} • ${album.tracks.length} TRACKS` : catalogQuery.isLoading ? "Opening the album…" : "This sleeve is unavailable."}</p></div>
           </div>
         </div>
