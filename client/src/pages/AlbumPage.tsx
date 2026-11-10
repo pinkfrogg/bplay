@@ -12,7 +12,6 @@ import { SkipBack, SkipForward, Disc3, ListMusic, Pause, Play, Volume2, Repeat, 
 import { Link, useLocation, useParams } from "wouter";
 import { useEffect, useMemo, useRef, useState } from "react";
 
-const HERO_ART = "https://file.garden/ajiuqJaWwnaROsKw/barbie-assets/castle-bgv4.png";
 const IDLE_COVER = "/manus-storage/rose-petal-vinyl-sleeve_1ef35f07.jpg";
 const IDLE_SPECTRUM = Array.from({ length: 28 }, (_, index) => 0.16 + ((index * 7) % 10) / 100);
 const clock = (time: number) => !Number.isFinite(time) ? "0:00" : `${Math.floor(time / 60)}:${Math.floor(time % 60).toString().padStart(2, "0")}`;
@@ -257,7 +256,7 @@ export default function AlbumPage() {
     <ListeningRail search={{ query: searchQuery, isLoading: catalogQuery.isLoading, suggestions, message: searchMessage, onQueryChange: value => { setSearchQuery(value); setSearchMessage(""); }, onSubmit: searchCollection, onSelect: openSearchResult }} />
     <main className="listening-stage">
 
-      <div className="stage-atmosphere" style={{ backgroundImage: `url(${HERO_ART})` }} />
+      <div className="stage-atmosphere" />
       <header className="album-page-header">
         <div className="album-page-header-main">
           <Link className="album-back-link" href="/">← Back to discography</Link>
