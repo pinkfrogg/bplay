@@ -1,3 +1,13 @@
+
+@font-face {
+  font-family: 'TitleFallback';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('https://fonts.gstatic.com/s/gildadisplay/v20/t5tmIRoYMoaYG0WEOh7HwMeR3T7Prw.woff2') format('woff2');
+  unicode-range: U+0021-002F, U+003A-0040, U+005B-0060, U+007B-007E;
+}
+
 @import "tailwindcss";
 @import "tw-animate-css";
 
@@ -247,7 +257,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .vinyl--spinning { animation: vinyl-spin 4.8s linear infinite; }
 @keyframes vinyl-spin { to { transform: rotate(360deg); } }
 .track-details { min-width: 0; max-width: none; padding-top: 0; }
-.track-details h3 { margin: 0; overflow: hidden; font-family: 'Tangerine', 'Gilda Display', serif; font-weight: bold; font-size: clamp(50px, calc(2.6vw + 20px), 74px); letter-spacing: -.02em; line-height: .96; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
+.track-details h3 { margin: 0; overflow: hidden; font-family: 'TitleFallback', 'Tangerine', serif; font-weight: bold; font-size: clamp(50px, calc(2.6vw + 20px), 74px); letter-spacing: -.02em; line-height: .96; white-space: nowrap; overflow-wrap: normal; word-break: normal; }
 .track-details h3 > span { display: inline-block; white-space: nowrap; }
 .track-title-marquee-track { display: flex !important; align-items: baseline; width: max-content; gap: 54px; }
 .track-title-marquee-track > span { display: block; flex: 0 0 auto; }
