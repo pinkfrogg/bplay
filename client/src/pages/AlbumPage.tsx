@@ -3,7 +3,7 @@ import ListeningRail from "@/components/ListeningRail";
 import MarqueeTitle from "@/components/MarqueeTitle";
 import PrincessCrown from "@/components/PrincessCrown";
 import { catalogSearchPath, catalogSearchSuggestions, selectedTrackIdFromSearch } from "@/lib/catalogSearch";
-import { albumIdFromRouteParam, type CatalogAlbum, type CatalogTrack } from "@/lib/catalogRoutes";
+import { albumPath, albumIdFromRouteParam, type CatalogAlbum, type CatalogTrack } from "@/lib/catalogRoutes";
 import type { LrcCue } from "@/lib/lrc";
 import { activeLyricCueIndex, lyricStageCues, selectedTrackLyricCues } from "@/lib/lyricPlayback";
 import { searchSuggestionReserveHeight } from "@/lib/searchLayout";
@@ -216,6 +216,28 @@ export default function AlbumPage() {
     navigate(catalogSearchPath(result));
   };
 
+  const relatedReleases = useMemo(() => {
+    if (!album?.relatedGroupId) return [];
+    return catalog.filter(a => a.relatedGroupId === album.relatedGroupId && a.id !== album.id);
+  }, [catalog, album]);
+  const relatedReleasesSection = relatedReleases.length > 0 ? (
+    <section className="related-releases-section">
+      <div className="album-page-section-heading"><h2>Related Releases</h2></div>
+      <div className="related-releases-grid">
+        {relatedReleases.map(item => (
+          <Link key={item.id} href={albumPath(item.id)} className="album-card related-card-link">
+            <span className="dvd-case"><img src={item.coverImage} alt="" /></span>
+            <span className="album-disc"><img src={item.vinylImage ?? item.coverImage} alt="" /><i className="album-disc-grooves" aria-hidden="true" /><i className="album-disc-hole" aria-hidden="true" /></span>
+            <span className="album-card-copy">
+              <strong>{item.title}</strong>
+              <small>{item.releaseYear ?? "—"} • {item.typeLabel || `${item.tracks.length} ${item.tracks.length === 1 ? "Track" : "Tracks"}`}</small>
+            </span>
+          </Link>
+        ))}
+      </div>
+    </section>
+  ) : null;
+
   const searchCollection = () => {
     const result = suggestions[0];
     if (!result) {
@@ -280,6 +302,7 @@ export default function AlbumPage() {
           <div className="record-presentation"><div className={`vinyl ${playing ? "vinyl--spinning" : ""}`}><img className="vinyl-art" src={vinylArt} alt="" /><span className="vinyl-grooves" aria-hidden="true" /><span className="vinyl-hole" aria-hidden="true" /></div><div className={`tonearm ${playing ? "tonearm--engaged" : ""}`}><i className="tonearm-pivot" aria-hidden="true" /><span className="tonearm-assembly" aria-hidden="true"><i className="tonearm-arm" /><i className="tonearm-cartridge" /></span></div><div className="sleeve-backdrop"><img src={cover} alt="" /></div></div>
           <div className="track-details" style={{ visibility: track ? "visible" : "hidden" }}><MarqueeTitle active={Boolean(track && playing)}>{track?.title ?? ""}</MarqueeTitle>{track && <><p className="artist-line">{track.albumArtists || track.artist}</p><p className="album-credit">{album.title}</p></>}{error && <p className="playback-error">{error}</p>}</div>
         </section>
+        {!trackId && relatedReleasesSection}
         <section className={`visualizer visualizer--minimal ${playing ? "visualizer--active" : ""}`} style={{ visibility: track ? "visible" : "hidden" }}><div className="spectrum-bars">{spectrum.map((level, itemIndex) => <i key={itemIndex} style={{ height: `${Math.round(level * 100)}%` }} />)}</div></section>
         <section className="transport" style={{ visibility: track ? "visible" : "hidden" }}><div className="timeline-row"><span>{clock(elapsed)}</span><input className="progress-scrubber" aria-label="Drag to seek anywhere in the track" aria-valuetext={`${clock(elapsed)} of ${clock(progressLimit)}`} type="range" min="0" max={progressLimit || 1} step="0.01" value={Math.min(elapsed, progressLimit || 0)} disabled={!track || !progressLimit} onPointerDown={() => setSeeking(true)} onPointerUp={event => { const time = Number((event.currentTarget as HTMLInputElement).value); if (audioRef.current) audioRef.current.currentTime = time; setElapsed(time); setSeeking(false); }} onChange={event => { const time = Number(event.target.value); setElapsed(time); if (audioRef.current) audioRef.current.currentTime = time; }} /><span>{clock(progressLimit)}</span></div><div className="control-row"><button className={`icon-button ${loopMode === "track" ? "icon-button--active" : ""}`} aria-label="Toggle loop mode" onClick={toggleLoop}>{loopMode === "track" ? <Repeat1 size={20} /> : <Repeat size={20} />}</button><button className="icon-button" aria-label="Previous track" onClick={() => move(-1)} disabled={tracks.length < 2}><SkipBack size={20} fill="currentColor" /></button><button className="play-button" aria-label={playing ? "Pause" : "Play"} onClick={toggle} disabled={!track}>{playing ? <Pause size={20} fill="currentColor" /> : <Play size={20} fill="currentColor" />}</button><button className="icon-button" aria-label="Next track" onClick={() => move(1)} disabled={tracks.length < 2}><SkipForward size={20} fill="currentColor" /></button><button className={`icon-button ${shuffleMode ? "icon-button--active" : ""}`} aria-label="Toggle shuffle" onClick={toggleShuffle} disabled={tracks.length < 2}><Shuffle size={20} /></button><label className="volume-control"><Volume2 size={16} /><input aria-label="Volume" type="range" min="0" max="1" step=".01" value={volume} onChange={event => setVolume(Number(event.target.value))} /><span>{Math.round(volume * 100)}</span></label></div></section>
         <section className="lyrics-section" style={{ visibility: track ? "visible" : "hidden" }}>
@@ -289,6 +312,7 @@ export default function AlbumPage() {
             {lyricIndex < 0 && <p>Incoming Lyrics...</p>}
           </div> : <div className="lyrics-empty"><ListMusic size={22} /><div><strong>No lyrics found in the Pavilion</strong></div></div>}
         </section>
+        {trackId && relatedReleasesSection}
       </>}
     </main>
   </div>;
