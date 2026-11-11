@@ -142,7 +142,7 @@ button:focus-visible, a:focus-visible, input:focus-visible { outline: 2px solid 
 .intro-preview-actions button:active { transform: scale(.97); }
 .intro-preview-note { display: inline-flex; align-items: center; justify-content: center; gap: 7px; margin: 18px 0 0; color: rgba(251,204,218,.78); font: 10px/1.5 var(--font-metadata); }
 .intro-preview-card > a { display: inline-block; margin-top: 22px; color: #ffcada; font: 10px var(--font-metadata); letter-spacing: .06em; text-underline-offset: 4px; text-transform: uppercase; }
-.stage-atmosphere { position: absolute; width: 100%; height: 100%; left: 0; top: 0; pointer-events: none; background-image: url('https://file.garden/ajiuqJaWwnaROsKw/barbie-assets/sample-final.png'); background-size: cover; background-position: center; z-index: 0; }
+.stage-atmosphere { position: absolute; width: 100%; height: 100%; left: 0; top: 0; pointer-events: none; background-image: url('https://file.garden/ajiuqJaWwnaROsKw/barbie-assets/castle-home.png'); background-size: cover; background-position: center; z-index: 0; }
 .stage-header, .turntable-area, .transport, .queue-section { position: relative; z-index: 1; }
 .stage-header { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
 .stage-tools { display: flex; align-items: flex-start; justify-content: flex-end; flex-wrap: wrap; gap: 7px; max-width: 290px; }
