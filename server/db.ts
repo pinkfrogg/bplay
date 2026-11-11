@@ -28,19 +28,22 @@ export async function listPublicCatalog() {
   return groupCatalog(albums, tracks);
 }
 
-export async function createCatalogAlbum(input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function createCatalogAlbum(input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; typeLabel?: string; isHiddenFromDiscography?: boolean; relatedGroupId?: string; sortOrder?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [result] = await db.insert(catalogAlbums).values(input);
+  const [result] = await db.insert(catalogAlbums).values({
+    ...input,
+    isHiddenFromDiscography: input.isHiddenFromDiscography ? 1 : 0
+  });
   const album = await db.select().from(catalogAlbums).where(eq(catalogAlbums.id, Number(result.insertId))).limit(1);
   if (!album[0]) throw new Error("Album could not be created");
   return album[0];
 }
 
-export async function updateCatalogAlbum(input: { id: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function updateCatalogAlbum(input: { id: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; typeLabel?: string; isHiddenFromDiscography?: boolean; relatedGroupId?: string; sortOrder?: number }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(catalogAlbums).set({ title: input.title, subtitle: input.subtitle, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+  await db.update(catalogAlbums).set({ title: input.title, subtitle: input.subtitle, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, typeLabel: input.typeLabel, isHiddenFromDiscography: input.isHiddenFromDiscography ? 1 : 0, relatedGroupId: input.relatedGroupId, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
 }
 
 export async function deleteCatalogAlbum(id: number) {
@@ -103,4 +106,37 @@ export async function reorderCatalogTracks(albumId: number, trackIds: number[]) 
   for (const item of makeTrackOrder(trackIds)) {
     await db.update(catalogTracks).set({ sortOrder: item.sortOrder }).where(and(eq(catalogTracks.id, item.id), eq(catalogTracks.albumId, albumId)));
   }
+}
+
+export async function linkRelatedAlbums(albumAId: number, albumBId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  const [albumA, albumB] = await Promise.all([
+    db.select().from(catalogAlbums).where(eq(catalogAlbums.id, albumAId)).limit(1),
+    db.select().from(catalogAlbums).where(eq(catalogAlbums.id, albumBId)).limit(1)
+  ]);
+
+  if (!albumA[0] || !albumB[0]) throw new Error("Albums not found");
+
+  let newGroupId = albumA[0].relatedGroupId || albumB[0].relatedGroupId;
+  if (!newGroupId) {
+    const { nanoid } = await import("nanoid");
+    newGroupId = nanoid();
+  }
+
+  await db.update(catalogAlbums).set({ relatedGroupId: newGroupId }).where(eq(catalogAlbums.id, albumAId));
+  await db.update(catalogAlbums).set({ relatedGroupId: newGroupId }).where(eq(catalogAlbums.id, albumBId));
+
+  // If they both had different group IDs, we should probably merge them. Let's merge if A has a group ID.
+  if (albumA[0].relatedGroupId && albumB[0].relatedGroupId && albumA[0].relatedGroupId !== albumB[0].relatedGroupId) {
+    await db.update(catalogAlbums).set({ relatedGroupId: newGroupId }).where(eq(catalogAlbums.relatedGroupId, albumB[0].relatedGroupId));
+  }
+}
+
+export async function unlinkRelatedAlbum(albumId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+
+  await db.update(catalogAlbums).set({ relatedGroupId: null }).where(eq(catalogAlbums.id, albumId));
 }
