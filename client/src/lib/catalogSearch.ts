@@ -1,7 +1,7 @@
 import { albumPath, type CatalogAlbum } from "./catalogRoutes";
 
 export type CatalogSearchResult = { albumId: number; trackId?: number };
-export type CatalogSearchSuggestion = CatalogSearchResult & { kind: "movie" | "song" | "artist"; title: string; detail: string };
+export type CatalogSearchSuggestion = CatalogSearchResult & { kind: "album" | "song" | "artist"; title: string; detail: string };
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/\s+/g, " ");
 const includesQuery = (value: string, query: string) => normalize(value).includes(query);
@@ -31,7 +31,7 @@ export function findCatalogSearchResult(catalog: CatalogAlbum[], rawQuery: strin
 export function catalogSearchSuggestions(catalog: CatalogAlbum[], rawQuery: string, limit = 8): CatalogSearchSuggestion[] {
   const query = normalize(rawQuery);
   if (!query) return [];
-  const movieSuggestions = catalog.filter(album => includesQuery(album.title, query)).map(album => ({ kind: "movie" as const, albumId: album.id, title: album.title, detail: `${album.releaseYear ?? "—"} • ${album.tracks.length} tracks` }));
+  const movieSuggestions = catalog.filter(album => includesQuery(album.title, query)).map(album => ({ kind: "album" as const, albumId: album.id, title: album.title, detail: `${album.releaseYear ?? "—"} • ${album.tracks.length} tracks` }));
   const songSuggestions = catalog.flatMap(album => album.tracks.filter(track => includesQuery(track.title, query)).map(track => ({ kind: "song" as const, albumId: album.id, trackId: track.id, title: track.title, detail: `${album.title} • ${track.albumArtists || track.artist}` })));
   const artistSuggestions = catalog.flatMap(album => {
     const matchingTrack = album.tracks.find(track => includesQuery(`${track.albumArtists ?? ""} ${track.artist}`, query));
