@@ -31,7 +31,6 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
   const [coverImage, setCoverImage] = useState("");
   const [vinylImage, setVinylImage] = useState("");
   const [albumReleaseYear, setAlbumReleaseYear] = useState("");
-  const [albumTypeLabel, setAlbumTypeLabel] = useState("");
   const [albumIsHidden, setAlbumIsHidden] = useState(false);
   const linkAlbums = trpc.catalog.linkAlbums.useMutation();
   const unlinkAlbum = trpc.catalog.unlinkAlbum.useMutation();
@@ -209,7 +208,7 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
   return <section className="curator-desk curator-desk-enhanced" aria-labelledby="catalog-desk-heading">
     <div className="curator-desk-heading"><div><p className="eyebrow">Owner-only editor</p><h2 id="catalog-desk-heading">Curator’s catalog desk</h2><p>Fetch song title, sleeve album, album artists, year, and track number from MP3 tags.</p></div></div>
     <div className="desk-grid">
-      <form className="desk-form" onSubmit={addAlbum}><h3><Plus size={15} /> Add a movie sleeve</h3><label>Movie / album title<input value={albumTitle} onChange={event => setAlbumTitle(event.target.value)} required placeholder="e.g. Barbie of Swan Lake" /></label><label>Subtitle<input value={albumSubtitle} onChange={event => setAlbumSubtitle(event.target.value)} placeholder="e.g. Movie soundtrack" /></label><label>Release year<input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={albumReleaseYear} onChange={event => setAlbumReleaseYear(event.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="e.g. 2002" /></label><label>Type label<select value={albumTypeLabel} onChange={event => setAlbumTypeLabel(event.target.value)}><option value="">Album (default)</option><option value="EP">EP</option><option value="Single">Single</option><option value="Soundtrack">Soundtrack</option></select></label><label className="desk-checkbox"><input type="checkbox" checked={albumIsHidden} onChange={event => setAlbumIsHidden(event.target.checked)} /> <span>Hide from homepage discography</span></label><label>DVD / sleeve image URL<input value={coverImage} onChange={event => setCoverImage(event.target.value)} required placeholder="https://… or /manus-storage/…" /></label><label>Full vinyl image URL<input value={vinylImage} onChange={event => setVinylImage(event.target.value)} placeholder="Optional; falls back to sleeve art" /></label><button type="submit" disabled={createAlbum.isPending}><Save size={14} /> Save sleeve</button></form>
+      <form className="desk-form" onSubmit={addAlbum}><h3><Plus size={15} /> Add a movie sleeve</h3><label>Movie / album title<input value={albumTitle} onChange={event => setAlbumTitle(event.target.value)} required placeholder="e.g. Barbie of Swan Lake" /></label><label>Subtitle<input value={albumSubtitle} onChange={event => setAlbumSubtitle(event.target.value)} placeholder="e.g. Movie soundtrack" /></label><label>Release year<input type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} value={albumReleaseYear} onChange={event => setAlbumReleaseYear(event.target.value.replace(/\D/g, "").slice(0, 4))} placeholder="e.g. 2002" /></label><label className="desk-checkbox"><input type="checkbox" checked={albumIsHidden} onChange={event => setAlbumIsHidden(event.target.checked)} /> <span>Hide from homepage discography</span></label><label>DVD / sleeve image URL<input value={coverImage} onChange={event => setCoverImage(event.target.value)} required placeholder="https://… or /manus-storage/…" /></label><label>Full vinyl image URL<input value={vinylImage} onChange={event => setVinylImage(event.target.value)} placeholder="Optional; falls back to sleeve art" /></label><button type="submit" disabled={createAlbum.isPending}><Save size={14} /> Save sleeve</button></form>
       <form className="desk-form" onSubmit={addTrack}><h3><Plus size={15} /> Add a track</h3><label>Movie sleeve<select value={trackAlbumId} onChange={event => setTrackAlbumId(event.target.value)} required><option value="" disabled>Choose an album</option>{catalog.map(album => <option key={album.id} value={album.id}>{album.title}</option>)}</select></label><label>Song title<input value={trackTitle} onChange={event => setTrackTitle(event.target.value)} required /></label><label>Direct MP3 URL<input value={trackUrl} onChange={event => setTrackUrl(event.target.value)} onBlur={() => void fetchMetadata()} required placeholder="Paste a direct .mp3 link" /></label><label>Optional .LRC URL<input type="url" value={trackLrcUrl} onChange={event => setTrackLrcUrl(event.target.value)} placeholder="Paste a direct .lrc link" /></label><button className="metadata-fetch" type="button" onClick={() => void fetchMetadata()} disabled={fetchMp3Metadata.isPending || !trackUrl}><Sparkles size={14} /> {fetchMp3Metadata.isPending ? "Reading MP3…" : "Fetch MP3 tags"}</button><div className="tag-grid"><label>Track number<input type="number" min="1" value={trackNumber ?? ""} onChange={event => setTrackNumber(optionalNumber(event.target.value))} /></label><label>Album artist(s)<input value={trackAlbumArtists} onChange={event => setTrackAlbumArtists(event.target.value)} /></label></div>{trackDuration && <p className="metadata-result">Duration saved: {Math.floor(trackDuration / 60)}:{String(trackDuration % 60).padStart(2, "0")}</p>}<button type="submit" disabled={createTrack.isPending || !catalog.length}><Save size={14} /> Save track</button></form>
     </div>
     <div className="desk-search" role="search"><Search size={16} /><input aria-label="Search album or track" value={query} onChange={event => setQuery(event.target.value)} placeholder="Search movie, song, or album artist" /><select aria-label="Filter by movie sleeve" value={albumFilter} onChange={event => setAlbumFilter(event.target.value)}><option value="all">All sleeves</option>{catalog.map(album => <option key={album.id} value={album.id}>{album.title}</option>)}</select></div>
@@ -241,7 +240,7 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
                   <button className="desk-delete" type="button" onClick={() => void removeAlbum(album.id)}><Trash2 size={14} /> Remove sleeve</button>
                 </div>
               </div>
-              <label>Album title<input name="title" defaultValue={album.title} required /></label><label>Subtitle<input name="subtitle" defaultValue={album.subtitle ?? ""} placeholder="e.g. Movie soundtrack" /></label><label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} defaultValue={album.releaseYear ?? ""} placeholder="e.g. 2002" /></label><label>Type label<select name="typeLabel" defaultValue={album.typeLabel ?? ""}><option value="">Album (default)</option><option value="EP">EP</option><option value="Single">Single</option><option value="Soundtrack">Soundtrack</option></select></label><label className="desk-checkbox"><input type="checkbox" name="isHiddenFromDiscography" defaultChecked={Boolean(album.isHiddenFromDiscography)} /> <span>Hide from homepage discography</span></label><label>DVD / sleeve image URL<input name="coverImage" defaultValue={album.coverImage} required /></label><label>Full vinyl image URL<input name="vinylImage" defaultValue={album.vinylImage ?? ""} /></label><button type="submit" disabled={updateAlbum.isPending}><Save size={14} /> Update artwork</button></form>
+              <label>Album title<input name="title" defaultValue={album.title} required /></label><label>Subtitle<input name="subtitle" defaultValue={album.subtitle ?? ""} placeholder="e.g. Movie soundtrack" /></label><label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} defaultValue={album.releaseYear ?? ""} placeholder="e.g. 2002" /></label><label className="desk-checkbox"><input type="checkbox" name="isHiddenFromDiscography" defaultChecked={Boolean(album.isHiddenFromDiscography)} /> <span>Hide from homepage discography</span></label><label>DVD / sleeve image URL<input name="coverImage" defaultValue={album.coverImage} required /></label><label>Full vinyl image URL<input name="vinylImage" defaultValue={album.vinylImage ?? ""} /></label><button type="submit" disabled={updateAlbum.isPending}><Save size={14} /> Update artwork</button></form>
             <div className="desk-related-releases">
               <h3>Related Releases</h3>
               <ul className="desk-related-list">
@@ -252,6 +251,41 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
                   </li>
                 ))}
               </ul>
+
+              <form className="desk-related-form" onSubmit={async event => {
+                event.preventDefault();
+                const form = event.currentTarget;
+                const data = new FormData(form);
+                try {
+                  const newAlbum = await createAlbum.mutateAsync({
+                    title: String(data.get("title")),
+                    subtitle: String(data.get("subtitle") || "") || undefined,
+                    releaseYear: albumReleaseYearFromInput(data.get("releaseYear")),
+                    isHiddenFromDiscography: data.get("isHiddenFromDiscography") === "on",
+                    coverImage: String(data.get("coverImage")),
+                    vinylImage: String(data.get("vinylImage") || "") || undefined,
+                    relatedGroupId: album.relatedGroupId ?? undefined
+                  });
+                  if (!album.relatedGroupId) {
+                    await linkAlbums.mutateAsync({ albumAId: album.id, albumBId: newAlbum.id });
+                  }
+                  form.reset();
+                  setMessage("Related release filed and linked.");
+                  refresh();
+                } catch (error) {
+                  setMessage(error instanceof Error ? error.message : "The related release could not be saved.");
+                }
+              }}>
+                <h4>Add related release</h4>
+                <label>Title<input name="title" required placeholder="e.g. Barbie of Swan Lake" /></label>
+                <label>Subtitle<input name="subtitle" placeholder="e.g. Movie soundtrack" /></label>
+                <label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} placeholder="e.g. 2002" /></label>
+                <label className="desk-checkbox"><input type="checkbox" name="isHiddenFromDiscography" defaultChecked /> <span>Hide from homepage discography</span></label>
+                <label>DVD / sleeve image URL<input name="coverImage" required placeholder="https://… or /manus-storage/…" /></label>
+                <label>Full vinyl image URL<input name="vinylImage" placeholder="Optional; falls back to sleeve art" /></label>
+                <button type="submit" disabled={createAlbum.isPending || linkAlbums.isPending}><Plus size={14} /> Add related release</button>
+              </form>
+
               <div className="desk-related-actions">
                 <select value={linkSelections[album.id] || ""} onChange={event => setLinkSelections(prev => ({ ...prev, [album.id]: event.target.value ? Number(event.target.value) : "" }))}>
                   <option value="">Choose an album to link</option>
