@@ -2,10 +2,7 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
-import path from "path";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
-import { migrate } from "drizzle-orm/mysql2/migrator";
-import { getDb } from "../db";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
 import { createContext } from "./context";
@@ -70,18 +67,6 @@ function rateLimit(req: express.Request, res: express.Response) {
 }
 
 async function startServer() {
-  try {
-    const db = await getDb();
-    if (!db) {
-      console.warn("[Database] Migrations skipped: DATABASE_URL is not configured.");
-    } else {
-      await migrate(db, { migrationsFolder: path.resolve(process.cwd(), "drizzle") });
-      console.log("[Database] Migration 0009_related_releases applied or already up to date.");
-    }
-  } catch (error) {
-    console.error("[Database] Migration failed; continuing server startup.", error);
-  }
-
   const app = express();
   const server = createServer(app);
 

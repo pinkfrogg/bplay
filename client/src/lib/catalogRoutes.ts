@@ -22,8 +22,6 @@ export type CatalogAlbum = {
   coverImage: string;
   vinylImage?: string | null;
   releaseYear?: number | null;
-  relatedGroupId?: string | null;
-  isHiddenFromDiscography?: number;
   tracks: CatalogTrack[];
 };
 

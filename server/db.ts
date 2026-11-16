@@ -1,6 +1,5 @@
 import { and, asc, eq } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { randomUUID } from "node:crypto";
 import { catalogAlbums, catalogTracks } from "../drizzle/schema";
 import { groupCatalog, makeTrackOrder } from "./catalog";
 
@@ -36,67 +35,6 @@ export async function createCatalogAlbum(input: { title: string; subtitle?: stri
   const album = await db.select().from(catalogAlbums).where(eq(catalogAlbums.id, Number(result.insertId))).limit(1);
   if (!album[0]) throw new Error("Album could not be created");
   return album[0];
-}
-
-export async function createRelatedCatalogAlbum(input: { parentAlbumId: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; isHiddenFromDiscography: boolean }) {
-  const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  await db.transaction(async (tx) => {
-    const [parent] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, input.parentAlbumId)).limit(1);
-    if (!parent) throw new Error("Parent album could not be found");
-    const relatedGroupId = parent.relatedGroupId ?? randomUUID();
-    if (!parent.relatedGroupId) {
-      await tx.update(catalogAlbums).set({ relatedGroupId }).where(eq(catalogAlbums.id, input.parentAlbumId));
-    }
-    const albums = await tx.select({ sortOrder: catalogAlbums.sortOrder }).from(catalogAlbums);
-    const sortOrder = albums.reduce((maximum, album) => Math.max(maximum, album.sortOrder), -1) + 1;
-    await tx.insert(catalogAlbums).values({
-      title: input.title,
-      subtitle: input.subtitle,
-      coverImage: input.coverImage,
-      vinylImage: input.vinylImage,
-      releaseYear: input.releaseYear,
-      sortOrder,
-      relatedGroupId,
-      isHiddenFromDiscography: input.isHiddenFromDiscography ? 1 : 0,
-    });
-  });
-}
-
-export async function linkRelatedCatalogAlbums(parentAlbumId: number, relatedAlbumId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  await db.transaction(async (tx) => {
-    if (parentAlbumId === relatedAlbumId) throw new Error("An album cannot be related to itself");
-    const [parent] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, parentAlbumId)).limit(1);
-    const [related] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, relatedAlbumId)).limit(1);
-    if (!parent || !related) throw new Error("Both albums must exist to link related releases");
-
-    const existingGroupIds = Array.from(new Set([parent.relatedGroupId, related.relatedGroupId].filter((id): id is string => Boolean(id))));
-    const relatedGroupId = existingGroupIds[0] ?? randomUUID();
-    for (const groupId of existingGroupIds) {
-      const members = await tx.select({ id: catalogAlbums.id }).from(catalogAlbums).where(eq(catalogAlbums.relatedGroupId, groupId));
-      for (const member of members) {
-        await tx.update(catalogAlbums).set({ relatedGroupId }).where(eq(catalogAlbums.id, member.id));
-      }
-    }
-    await tx.update(catalogAlbums).set({ relatedGroupId }).where(eq(catalogAlbums.id, parentAlbumId));
-    await tx.update(catalogAlbums).set({ relatedGroupId }).where(eq(catalogAlbums.id, relatedAlbumId));
-  });
-}
-
-export async function unlinkRelatedCatalogAlbum(parentAlbumId: number, relatedAlbumId: number) {
-  const db = await getDb();
-  if (!db) throw new Error("Database is not available");
-  if (parentAlbumId === relatedAlbumId) throw new Error("An album cannot be unlinked from itself");
-  await db.transaction(async (tx) => {
-    const [parent] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, parentAlbumId)).limit(1);
-    const [related] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, relatedAlbumId)).limit(1);
-    if (!parent || !related || !parent.relatedGroupId || parent.relatedGroupId !== related.relatedGroupId) {
-      throw new Error("These albums are not linked as related releases");
-    }
-    await tx.update(catalogAlbums).set({ relatedGroupId: null }).where(eq(catalogAlbums.id, relatedAlbumId));
-  });
 }
 
 export async function updateCatalogAlbum(input: { id: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
