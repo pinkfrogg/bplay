@@ -1,7 +1,7 @@
-import { and, asc, eq } from "drizzle-orm";
+import { and, asc, eq, inArray, or } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
 import { catalogAlbums, catalogTracks } from "../drizzle/schema";
-import { groupCatalog, makeTrackOrder } from "./catalog";
+import { catalogAlbumUpdateValues, type CatalogAlbumUpdate, groupCatalog, makeTrackOrder } from "./catalog";
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
@@ -28,19 +28,63 @@ export async function listPublicCatalog() {
   return groupCatalog(albums, tracks);
 }
 
-export async function createCatalogAlbum(input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function createCatalogAlbum(input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number; isHiddenFromDiscography?: boolean }) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  const [result] = await db.insert(catalogAlbums).values(input);
+  const [result] = await db.insert(catalogAlbums).values({ ...input, isHiddenFromDiscography: Number(input.isHiddenFromDiscography ?? false) });
   const album = await db.select().from(catalogAlbums).where(eq(catalogAlbums.id, Number(result.insertId))).limit(1);
   if (!album[0]) throw new Error("Album could not be created");
   return album[0];
 }
 
-export async function updateCatalogAlbum(input: { id: number; title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; sortOrder?: number }) {
+export async function updateCatalogAlbum(input: CatalogAlbumUpdate) {
   const db = await getDb();
   if (!db) throw new Error("Database is not available");
-  await db.update(catalogAlbums).set({ title: input.title, subtitle: input.subtitle, coverImage: input.coverImage, vinylImage: input.vinylImage, releaseYear: input.releaseYear, sortOrder: input.sortOrder ?? 0 }).where(eq(catalogAlbums.id, input.id));
+  const values = catalogAlbumUpdateValues(input);
+  if (Object.keys(values).length) {
+    await db.update(catalogAlbums).set(values).where(eq(catalogAlbums.id, input.id));
+  }
+}
+
+export async function createRelatedCatalogAlbum(parentId: number, input: { title: string; subtitle?: string; coverImage: string; vinylImage?: string; releaseYear?: number; isHiddenFromDiscography: boolean }) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  return db.transaction(async (tx) => {
+    const [parent] = await tx.select({ relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, parentId)).limit(1);
+    if (!parent) throw new Error("Parent album could not be found");
+    const relatedGroupId = parent.relatedGroupId ?? String(parentId);
+    if (!parent.relatedGroupId) {
+      await tx.update(catalogAlbums).set({ relatedGroupId }).where(eq(catalogAlbums.id, parentId));
+    }
+    const [result] = await tx.insert(catalogAlbums).values({ ...input, relatedGroupId, isHiddenFromDiscography: Number(input.isHiddenFromDiscography) });
+    const [album] = await tx.select().from(catalogAlbums).where(eq(catalogAlbums.id, Number(result.insertId))).limit(1);
+    if (!album) throw new Error("Related release could not be created");
+    return album;
+  });
+}
+
+export async function linkRelatedCatalogAlbum(parentId: number, relatedAlbumId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  if (parentId === relatedAlbumId) throw new Error("An album cannot be related to itself.");
+  await db.transaction(async (tx) => {
+    const [parent] = await tx.select({ id: catalogAlbums.id, relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, parentId)).limit(1);
+    const [related] = await tx.select({ id: catalogAlbums.id, relatedGroupId: catalogAlbums.relatedGroupId }).from(catalogAlbums).where(eq(catalogAlbums.id, relatedAlbumId)).limit(1);
+    if (!parent || !related) throw new Error("Both albums must exist before they can be linked.");
+    const relatedGroupId = parent.relatedGroupId ?? String(parent.id);
+    const previousGroupId = related.relatedGroupId ?? String(related.id);
+    await tx.update(catalogAlbums).set({ relatedGroupId }).where(or(
+      inArray(catalogAlbums.relatedGroupId, [relatedGroupId, previousGroupId]),
+      inArray(catalogAlbums.id, [parentId, relatedAlbumId]),
+    ));
+    await tx.update(catalogAlbums).set({ isHiddenFromDiscography: 1 }).where(eq(catalogAlbums.id, relatedAlbumId));
+  });
+}
+
+export async function unlinkRelatedCatalogAlbum(albumId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database is not available");
+  await db.update(catalogAlbums).set({ relatedGroupId: null }).where(eq(catalogAlbums.id, albumId));
 }
 
 export async function deleteCatalogAlbum(id: number) {

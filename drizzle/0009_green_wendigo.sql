@@ -1,0 +1,2 @@
+ALTER TABLE `catalogAlbums` ADD COLUMN IF NOT EXISTS `relatedGroupId` varchar(36);--> statement-breakpoint
+ALTER TABLE `catalogAlbums` ADD COLUMN IF NOT EXISTS `isHiddenFromDiscography` int DEFAULT 0 NOT NULL;

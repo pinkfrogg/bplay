@@ -2,11 +2,44 @@ import "dotenv/config";
 import express from "express";
 import { createServer } from "http";
 import net from "net";
+import { existsSync, readFileSync } from "fs";
+import { dirname, resolve } from "path";
+import { fileURLToPath } from "url";
+import type { RowDataPacket } from "mysql2";
+import { migrate } from "drizzle-orm/mysql2/migrator";
 import { createExpressMiddleware } from "@trpc/server/adapters/express";
 import { registerStorageProxy } from "./storageProxy";
 import { appRouter } from "../routers";
+import { getDb } from "../db";
 import { createContext } from "./context";
 import { serveStatic, setupVite } from "./vite";
+
+type MigrationJournal = { entries: Array<{ tag: string; when: number }> };
+
+async function applyPendingMigrations() {
+  if (!process.env.DATABASE_URL) throw new Error("DATABASE_URL is not set");
+  const db = await getDb();
+  if (!db) throw new Error("Database connection is unavailable");
+
+  const builtMigrationsFolder = resolve(dirname(fileURLToPath(import.meta.url)), "drizzle");
+  const migrationsFolder = existsSync(builtMigrationsFolder) ? builtMigrationsFolder : resolve(process.cwd(), "drizzle");
+  const journal = JSON.parse(readFileSync(resolve(migrationsFolder, "meta", "_journal.json"), "utf8")) as MigrationJournal;
+  const [tables] = await db.$client.promise().query<(RowDataPacket & { table_name: string })[]>(
+    "SELECT table_name FROM information_schema.tables WHERE table_schema = DATABASE() AND table_name = '__drizzle_migrations'",
+  );
+  const [history] = tables.length
+    ? await db.$client.promise().query<(RowDataPacket & { created_at: number | string })[]>("SELECT created_at FROM `__drizzle_migrations` ORDER BY created_at DESC LIMIT 1")
+    : [[] as (RowDataPacket & { created_at: number | string })[], []];
+  const latestAppliedAt = history[0] ? Number(history[0].created_at) : undefined;
+  const pending = journal.entries.filter(entry => latestAppliedAt === undefined || latestAppliedAt < entry.when);
+
+  await migrate(db, { migrationsFolder });
+  if (pending.length) {
+    for (const migration of pending) console.info(`[Database] Applied migration ${migration.tag}.`);
+  } else {
+    console.info("[Database] No pending migrations.");
+  }
+}
 
 function isPortAvailable(port: number): Promise<boolean> {
   return new Promise(resolve => {
@@ -67,6 +100,10 @@ function rateLimit(req: express.Request, res: express.Response) {
 }
 
 async function startServer() {
+  await applyPendingMigrations().catch(error => {
+    console.error("[Database] Migration failed; continuing server startup.", error);
+  });
+
   const app = express();
   const server = createServer(app);
 
