@@ -64,6 +64,13 @@
       "when": 1790100131707,
       "tag": "0008_friendly_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1794858663195,
+      "tag": "0009_green_wendigo",
+      "breakpoints": true
     }
   ]
 }
