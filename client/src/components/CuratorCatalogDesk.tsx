@@ -5,16 +5,13 @@ import { ArrowDown, ArrowUp, ChevronDown, ChevronUp, GripVertical, Plus, Save, S
 import { FormEvent, useMemo, useState } from "react";
 
 type Track = { id: number; albumId: number; title: string; artist: string; audioUrl: string; durationSeconds?: number | null; trackNumber?: number | null; albumName?: string | null; albumArtists?: string | null; lrcUrl?: string | null };
-type Album = { id: number; title: string; subtitle?: string | null; coverImage: string; vinylImage?: string | null; releaseYear?: number | null; relatedGroupId?: string | null; isHiddenFromDiscography?: number; tracks: Track[] };
+type Album = { id: number; title: string; subtitle?: string | null; coverImage: string; vinylImage?: string | null; releaseYear?: number | null; tracks: Track[] };
 
 const normalize = (value: string) => value.trim().toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
 
 export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
   const utils = trpc.useUtils();
   const createAlbum = trpc.catalog.createAlbum.useMutation();
-  const createRelatedAlbum = trpc.catalog.createRelatedAlbum.useMutation();
-  const linkRelatedAlbums = trpc.catalog.linkRelatedAlbums.useMutation();
-  const unlinkRelatedAlbum = trpc.catalog.unlinkRelatedAlbum.useMutation();
   const updateAlbum = trpc.catalog.updateAlbum.useMutation();
   const deleteAlbum = trpc.catalog.deleteAlbum.useMutation();
   const createTrack = trpc.catalog.createTrack.useMutation();
@@ -29,7 +26,6 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
   const [dragged, setDragged] = useState<{ albumId: number; trackId: number } | null>(null);
   const [draggedAlbumId, setDraggedAlbumId] = useState<number | null>(null);
   const [expandedAlbumId, setExpandedAlbumId] = useState<number | null>(null);
-  const [relatedAlbumId, setRelatedAlbumId] = useState("");
   const [albumTitle, setAlbumTitle] = useState("");
   const [albumSubtitle, setAlbumSubtitle] = useState("");
   const [coverImage, setCoverImage] = useState("");
@@ -109,50 +105,6 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
       await refresh();
     } catch (error) {
       setMessage(error instanceof Error ? error.message : "The sleeve could not be updated.");
-    }
-  };
-
-  const addRelatedRelease = async (event: FormEvent<HTMLFormElement>, parentAlbumId: number) => {
-    event.preventDefault();
-    const form = event.currentTarget;
-    const data = new FormData(form);
-    try {
-      await createRelatedAlbum.mutateAsync({
-        parentAlbumId,
-        title: String(data.get("title")),
-        subtitle: String(data.get("subtitle") || "") || undefined,
-        coverImage: String(data.get("coverImage")),
-        vinylImage: String(data.get("vinylImage") || "") || undefined,
-        releaseYear: albumReleaseYearFromInput(data.get("releaseYear")),
-        isHiddenFromDiscography: data.get("isHiddenFromDiscography") === "on",
-      });
-      form.reset();
-      setMessage("Related release added.");
-      await refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "The related release could not be saved.");
-    }
-  };
-
-  const linkRelatedRelease = async (parentAlbumId: number) => {
-    if (!relatedAlbumId) return;
-    try {
-      await linkRelatedAlbums.mutateAsync({ parentAlbumId, relatedAlbumId: Number(relatedAlbumId) });
-      setRelatedAlbumId("");
-      setMessage("Related release linked.");
-      await refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "The related release could not be linked.");
-    }
-  };
-
-  const removeRelatedRelease = async (parentAlbumId: number, relatedAlbumId: number) => {
-    try {
-      await unlinkRelatedAlbum.mutateAsync({ parentAlbumId, relatedAlbumId });
-      setMessage("Related release unlinked.");
-      await refresh();
-    } catch (error) {
-      setMessage(error instanceof Error ? error.message : "The related release could not be unlinked.");
     }
   };
 
@@ -261,13 +213,12 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
       {visibleAlbums.length ? visibleAlbums.map((album, index) => {
         const isExpanded = expandedAlbumId === album.id;
         const isFiltered = query !== "" || albumFilter !== "all";
-        const relatedAlbums = catalog.filter(item => item.id !== album.id && album.relatedGroupId && item.relatedGroupId === album.relatedGroupId);
         let className = isExpanded ? "desk-sleeve-entry desk-sleeve-entry--expanded" : "desk-sleeve-entry";
         if (draggedAlbumId === album.id) className += " desk-sleeve-entry--dragging";
 
         return <article className={className} key={album.id} onDragOver={event => { if (!isFiltered) event.preventDefault(); }} onDrop={() => { if (!isFiltered) dropAlbum(album.id); }}>
           <div className="desk-sleeve-header">
-            <button className="desk-sleeve-trigger" type="button" aria-expanded={isExpanded} aria-controls={`sleeve-editor-${album.id}`} onClick={() => { setRelatedAlbumId(""); setExpandedAlbumId(current => nextCuratorSleeveId(current, album.id)); }}>
+            <button className="desk-sleeve-trigger" type="button" aria-expanded={isExpanded} aria-controls={`sleeve-editor-${album.id}`} onClick={() => setExpandedAlbumId(current => nextCuratorSleeveId(current, album.id))}>
               <span className="desk-sleeve-title-wrapper" draggable={!isFiltered} onDragStart={event => { if (!isFiltered) setDraggedAlbumId(album.id); else event.preventDefault(); }} onDragEnd={() => setDraggedAlbumId(null)}>
                 {!isFiltered && <GripVertical className="desk-album-drag-icon" size={15} />}
                 <span>{album.title}</span>
@@ -286,26 +237,6 @@ export default function CuratorCatalogDesk({ catalog }: { catalog: Album[] }) {
                 </div>
               </div>
               <label>Album title<input name="title" defaultValue={album.title} required /></label><label>Subtitle<input name="subtitle" defaultValue={album.subtitle ?? ""} placeholder="e.g. Movie soundtrack" /></label><label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} defaultValue={album.releaseYear ?? ""} placeholder="e.g. 2002" /></label><label>DVD / sleeve image URL<input name="coverImage" defaultValue={album.coverImage} required /></label><label>Full vinyl image URL<input name="vinylImage" defaultValue={album.vinylImage ?? ""} /></label><button type="submit" disabled={updateAlbum.isPending}><Save size={14} /> Update artwork</button></form>
-            <section className="desk-related-releases" aria-labelledby={`related-releases-heading-${album.id}`}>
-              <h3 id={`related-releases-heading-${album.id}`}>(Optional) Related Releases (Hide from homepage discography)</h3>
-              {relatedAlbums.length
-                ? <ul className="desk-related-list">{relatedAlbums.map(item => <li key={item.id}><span>{item.title}{item.releaseYear ? ` (${item.releaseYear})` : ""}</span><button className="desk-related-remove" type="button" onClick={() => void removeRelatedRelease(album.id, item.id)} disabled={unlinkRelatedAlbum.isPending}>Remove link</button></li>)}</ul>
-                : <p className="desk-related-empty">No related releases linked yet.</p>}
-              <form className="desk-related-create" onSubmit={event => void addRelatedRelease(event, album.id)}>
-                <h4>Add a related release</h4>
-                <label>Title<input name="title" required /></label>
-                <label>Subtitle<input name="subtitle" /></label>
-                <label>Release year<input name="releaseYear" type="text" inputMode="numeric" pattern="[0-9]*" maxLength={4} placeholder="e.g. 2026" /></label>
-                <label>DVD / sleeve image URL<input name="coverImage" required placeholder="https://… or /manus-storage/…" /></label>
-                <label>Full vinyl image URL<input name="vinylImage" placeholder="Optional; falls back to sleeve art" /></label>
-                <label className="desk-related-hide"><input name="isHiddenFromDiscography" type="checkbox" defaultChecked /> Hide from homepage discography</label>
-                <button type="submit" disabled={createRelatedAlbum.isPending}><Save size={14} /> Add related release</button>
-              </form>
-              <div className="desk-related-link">
-                <label>Link an existing album<select value={relatedAlbumId} onChange={event => setRelatedAlbumId(event.target.value)}><option value="">Choose an album</option>{catalog.filter(item => item.id !== album.id).map(item => <option key={item.id} value={item.id}>{item.title}</option>)}</select></label>
-                <button type="button" onClick={() => void linkRelatedRelease(album.id)} disabled={!relatedAlbumId || linkRelatedAlbums.isPending}>Link album</button>
-              </div>
-            </section>
             <p className="drag-hint"><GripVertical size={14} /> Fetched track numbers set the initial play order. Drag or use Move up and Move down to arrange it further.</p>
             {album.tracks.map((track, index) => <form className={dragged?.trackId === track.id ? "desk-track desk-track--dragging" : "desk-track"} key={track.id} onSubmit={event => void saveTrack(event, track)} onDragOver={event => event.preventDefault()} onDrop={() => dropTrack(album, track.id)}><div className="desk-inline-title"><h4 draggable onDragStart={() => setDragged({ albumId: album.id, trackId: track.id })} onDragEnd={() => setDragged(null)} className="track-drag-handle"><GripVertical size={15} /> {track.trackNumber ? `Track ${track.trackNumber}` : `Track ${index + 1}`}</h4><div className="track-order-actions"><button type="button" className="desk-delete" disabled={index === 0} onClick={() => moveTrack(album, index, -1)}><ArrowUp size={13} /> Up</button><button type="button" className="desk-delete" disabled={index === album.tracks.length - 1} onClick={() => moveTrack(album, index, 1)}><ArrowDown size={13} /> Down</button><button className="desk-delete" type="button" onClick={() => void removeTrack(track.id)}><Trash2 size={14} /> Remove</button></div></div><label>Song title<input name="title" defaultValue={track.title} required /></label><label>Direct MP3 URL<input name="audioUrl" defaultValue={track.audioUrl} required /></label><label>LRC URL (optional)<input name="lrcUrl" type="url" defaultValue={track.lrcUrl ?? ""} placeholder="Paste a direct .lrc link" /></label><div className="tag-grid"><label>Track number<input name="trackNumber" type="number" min="1" defaultValue={track.trackNumber ?? ""} /></label><label>Album artist(s)<input name="albumArtists" defaultValue={track.albumArtists ?? ""} /></label><label>Duration seconds<input name="durationSeconds" type="number" min="1" defaultValue={track.durationSeconds ?? ""} /></label></div><button type="submit" disabled={updateTrack.isPending}><Save size={14} /> Update track</button></form>)}
           </div>}
