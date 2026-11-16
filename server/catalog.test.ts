@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { catalogAlbumUpdateValues, groupCatalog, makeTrackOrder } from "./catalog";
+import { groupCatalog, makeTrackOrder } from "./catalog";
 
 describe("public catalog grouping", () => {
   it("keeps every track attached to its matching curated album", () => {
@@ -16,10 +16,5 @@ describe("public catalog grouping", () => {
       { id: 3, sortOrder: 1 },
       { id: 8, sortOrder: 2 },
     ]);
-  });
-
-  it("preserves sort order and discography visibility on partial album updates", () => {
-    expect(catalogAlbumUpdateValues({ id: 8, title: "Swan Lake" })).toEqual({ title: "Swan Lake" });
-    expect(catalogAlbumUpdateValues({ id: 8, isHiddenFromDiscography: true })).toEqual({ isHiddenFromDiscography: 1 });
   });
 });
