@@ -22,18 +22,10 @@ export type CatalogAlbum = {
   coverImage: string;
   vinylImage?: string | null;
   releaseYear?: number | null;
-  sortOrder: number;
-  relatedGroupId?: string | null;
-  isHiddenFromDiscography?: number;
   tracks: CatalogTrack[];
 };
 
 export const albumPath = (albumId: number) => `/albums/${albumId}`;
-
-export const visibleDiscographyAlbums = (catalog: CatalogAlbum[]) => catalog.filter(album => !album.isHiddenFromDiscography);
-
-export const relatedReleasesForAlbum = (catalog: CatalogAlbum[], album: CatalogAlbum) =>
-  album.relatedGroupId ? catalog.filter(item => item.relatedGroupId === album.relatedGroupId && item.id !== album.id) : [];
 
 export const albumIdFromRouteParam = (value: string | undefined) => {
   const parsed = Number(value);
