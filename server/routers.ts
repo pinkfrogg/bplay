@@ -2,7 +2,7 @@ import { TRPCError } from "@trpc/server";
 import { z } from "zod";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { createCatalogAlbum, createCatalogTrack, createRelatedCatalogAlbum, deleteCatalogAlbum, deleteCatalogTrack, linkRelatedCatalogAlbum, listPublicCatalog, reorderCatalogAlbums, reorderCatalogTracks, unlinkRelatedCatalogAlbum, updateCatalogAlbum, updateCatalogTrack } from "./db";
+import { createCatalogAlbum, createCatalogTrack, deleteCatalogAlbum, deleteCatalogTrack, listPublicCatalog, reorderCatalogAlbums, reorderCatalogTracks, updateCatalogAlbum, updateCatalogTrack } from "./db";
 import { readMp3Metadata } from "./mp3Metadata";
 import { readLrc } from "./lrc.ts";
 import { publicProcedure, router } from "./_core/trpc";
@@ -31,14 +31,8 @@ export const appRouter = router({
   }),
   catalog: router({
     list: publicProcedure.query(() => listPublicCatalog()),
-    createAlbum: ownerProcedure.input(z.object({ title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional(), isHiddenFromDiscography: z.boolean().optional() })).mutation(({ input }) => createCatalogAlbum(input)),
-    updateAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive(), title: z.string().min(1).max(255).optional(), subtitle: z.string().max(255).nullable().optional(), coverImage: catalogImageUrl.optional(), vinylImage: catalogImageUrl.nullable().optional(), releaseYear: z.number().int().min(1000).max(9999).nullable().optional(), sortOrder: z.number().int().optional(), isHiddenFromDiscography: z.boolean().optional() })).mutation(({ input }) => updateCatalogAlbum(input)),
-    createRelatedAlbum: ownerProcedure.input(z.object({ parentId: z.number().int().positive(), title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), isHiddenFromDiscography: z.boolean() })).mutation(({ input }) => {
-      const { parentId, ...album } = input;
-      return createRelatedCatalogAlbum(parentId, album);
-    }),
-    linkRelatedAlbum: ownerProcedure.input(z.object({ parentId: z.number().int().positive(), relatedAlbumId: z.number().int().positive() })).mutation(({ input }) => linkRelatedCatalogAlbum(input.parentId, input.relatedAlbumId)),
-    unlinkRelatedAlbum: ownerProcedure.input(z.object({ albumId: z.number().int().positive() })).mutation(({ input }) => unlinkRelatedCatalogAlbum(input.albumId)),
+    createAlbum: ownerProcedure.input(z.object({ title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogAlbum(input)),
+    updateAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive(), title: z.string().min(1).max(255), subtitle: z.string().max(255).optional(), coverImage: catalogImageUrl, vinylImage: catalogImageUrl.optional(), releaseYear: z.number().int().min(1000).max(9999).optional(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogAlbum(input)),
     deleteAlbum: ownerProcedure.input(z.object({ id: z.number().int().positive() })).mutation(({ input }) => deleteCatalogAlbum(input.id)),
     createTrack: ownerProcedure.input(catalogTrackInput.extend({ albumId: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => createCatalogTrack(input)),
     updateTrack: ownerProcedure.input(catalogTrackInput.extend({ id: z.number().int().positive(), sortOrder: z.number().int().optional() })).mutation(({ input }) => updateCatalogTrack(input)),
