@@ -64,6 +64,13 @@
       "when": 1790100131707,
       "tag": "0008_friendly_mephistopheles",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "5",
+      "when": 1794856889204,
+      "tag": "0009_yummy_pandemic",
+      "breakpoints": true
     }
   ]
 }
